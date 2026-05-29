@@ -1,0 +1,11 @@
+{
+  "name": "@ondeckai/backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend workspace (see packages/api)",
+  "scripts": {
+    "dev": "npm run dev -w @ondeckai/api",
+    "build": "npm run build -w @ondeckai/shared && npm run build -w @ondeckai/api",
+    "start": "npm run start -w @ondeckai/api"
+  }
+}
