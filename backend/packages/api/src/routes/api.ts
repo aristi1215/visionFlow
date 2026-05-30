@@ -1,9 +1,8 @@
 import { Router } from "express";
+import WorkflowRouter from "../routes/WorkflowRouter.js";
 
 const router = Router();
 
-router.get("/health", (_req, res) => {
-  res.json({ message: "OndeckAI API" });
-});
+router.use("/workflows", WorkflowRouter);
 
 export default router;

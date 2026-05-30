@@ -1,4 +1,4 @@
-import { supabase } from "../integrations/supabase.js";
+import { supabase } from "../../integrations/supabase.js";
 
 
 
