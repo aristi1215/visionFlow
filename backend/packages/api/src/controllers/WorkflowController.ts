@@ -33,12 +33,7 @@ class WorkflowController {
     }
     
     static async getAllWorkflows(req: Request, res: Response){
-        const {userId} = getAuth(req);
-        console.log("--------------------------------");
-        console.log("Testing the auth middleware");
-        console.log(userId);
-        console.log(req)
-        console.log("--------------------------------");  
+        const {userId} = getAuth(req)
         if(!userId) return res.status(401).json({message: "Unauthorized"});
         const workflows = await WorkflowService.getAllWorkflows(userId);
         return res.status(200).json({status: 'success', data:{length: workflows.length, workflows}});
