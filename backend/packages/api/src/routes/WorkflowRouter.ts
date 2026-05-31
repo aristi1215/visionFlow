@@ -16,7 +16,7 @@ router.route('/')
 
 router.route('/:workflowId')
 .get(catchAsync(WorkflowController.getWorkflowById))
-.put(catchAsync(WorkflowController.updateWorkflow))
+.patch(catchAsync(WorkflowController.updateWorkflow))
 .delete(catchAsync(WorkflowController.deleteWorkflow)) 
 
 export default router;

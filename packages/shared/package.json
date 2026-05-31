@@ -15,7 +15,15 @@
     "./types/Workflows": {
       "types": "./dist/types/Workflows.d.ts",
       "import": "./dist/types/Workflows.js"
-    }
+      },
+      "./types/Nodes": {
+        "types": "./dist/types/Nodes.d.ts",
+        "import": "./dist/types/Nodes.js"
+      },
+      "./types/WorkFlowEdges": {
+        "types": "./dist/types/WorkFlowEdges.d.ts",
+        "import": "./dist/types/WorkFlowEdges.js"
+      }
   },
   "scripts": {
     "build": "tsc",
