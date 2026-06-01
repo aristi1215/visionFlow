@@ -5,8 +5,10 @@ import { Request, Response } from "express";
 class WorkflowEdgesController {
 
     static async createWorkflowEdge(req: workflowEdgeRequest, res: Response){
-        const {source_node, target_node, workflow_id} = req.body;
-        const edge = await WorkflowEdges.createWorkflowEdge({source_node, target_node, workflow_id});
+        const {source_node, target_node} = req.body;
+        const {workflowId} = req.params;
+        const formattedWorkflowId = Array.isArray(workflowId) ? workflowId[0] : workflowId;
+        const edge = await WorkflowEdges.createWorkflowEdge(formattedWorkflowId, {source_node, target_node});
         return res.status(201).json({status: 'success', data: edge});
     };
 
@@ -33,10 +35,12 @@ class WorkflowEdgesController {
         return res.status(200).json({status: 'success', data: edges});
     };
 
-    static async getWorkflowEdgeById(req: Request, res: Response){
+    static async getWorkflowSourceNodeEdges(req: Request, res: Response){
         //represents only the source_node
-        const {id} = req.params;
-
+        const {sourceNodeId} = req.params;
+        const formattedSourceNodeId = Array.isArray(sourceNodeId) ? sourceNodeId[0] : sourceNodeId;
+        const edges = await WorkflowEdges.getWorkflowSourceNodeEdges(formattedSourceNodeId);
+        return res.status(200).json({status: 'success', data: edges});
     };
 
 

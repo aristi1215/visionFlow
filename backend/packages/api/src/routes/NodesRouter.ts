@@ -5,7 +5,7 @@ import catchAsync from "../errors/catchAsync.js";
 const router = Router();
 
 
-router.route('workflows/:workflowId')
+router.route('/workflows/:workflowId')
 .get(catchAsync(NodeController.getAllNodesByWorkflowId))
 
 router.route('/')
