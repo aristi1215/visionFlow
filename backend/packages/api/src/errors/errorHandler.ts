@@ -1,4 +1,6 @@
 import type { ErrorRequestHandler } from "express";
+import dotenv from "dotenv";
+dotenv.config();
 
 const statusByErrorName: Record<string, number> = {
   ValidationError: 400,

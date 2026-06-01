@@ -177,7 +177,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
-          id?: string
+          id: string
           password_hash: string
         }
         Update: {
@@ -195,7 +195,7 @@ export type Database = {
           id: number
           metadata_json: Json
           s3_url: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           duration: number
@@ -203,7 +203,7 @@ export type Database = {
           id?: number
           metadata_json: Json
           s3_url: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           duration?: number
@@ -211,7 +211,7 @@ export type Database = {
           id?: number
           metadata_json?: Json
           s3_url?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -227,19 +227,19 @@ export type Database = {
         Row: {
           id: number
           source_node: number
-          target_node: number
+          target_node: number | null
           workflow_id: number
         }
         Insert: {
           id?: number
           source_node: number
-          target_node: number
+          target_node?: number | null
           workflow_id: number
         }
         Update: {
           id?: number
           source_node?: number
-          target_node?: number
+          target_node?: number | null
           workflow_id?: number
         }
         Relationships: [
@@ -313,21 +313,21 @@ export type Database = {
           id: number
           position_x: number
           position_y: number
-          type: string
+          type: Database["public"]["Enums"]["node_types"]
           workflow_id: number
         }
         Insert: {
           id?: number
           position_x: number
           position_y: number
-          type: string
+          type: Database["public"]["Enums"]["node_types"]
           workflow_id: number
         }
         Update: {
           id?: number
           position_x?: number
           position_y?: number
-          type?: string
+          type?: Database["public"]["Enums"]["node_types"]
           workflow_id?: number
         }
         Relationships: [
@@ -353,7 +353,7 @@ export type Database = {
           description?: string | null
           id?: number
           name: string
-          user_id?: string
+          user_id: string
         }
         Update: {
           created_at?: string

@@ -11,3 +11,4 @@ const ErrorFactory = function (name:string) {
 export const ValidationError = ErrorFactory("ValidationError");
 export const DatabaseError = ErrorFactory("DatabaseError");
 export const NotFoundError = ErrorFactory("NotFoundError");
+export const UnauthorizedError = ErrorFactory("UnauthorizedError");

@@ -44,7 +44,8 @@ class Workflow {
 
     
 
-    static async executeWorkflow(id: string){};
+    static async executeWorkflow(id: string){
+    };
 
     
     static async stopWorkflowExecution(id: string){};
