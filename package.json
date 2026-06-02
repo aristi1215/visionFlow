@@ -16,9 +16,13 @@
     "build:shared": "npm run build -w @ondeckai/shared",
     "build:api": "npm run build -w @ondeckai/api",
     "build:frontend": "npm run build -w frontend"
-  },  
+  },
   "engines": {
     "node": ">=20"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@tanstack/react-query-devtools": "^5.100.14",
+    "@tanstack/react-router-devtools": "^1.167.0"
+  }
 }

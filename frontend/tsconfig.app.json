@@ -15,11 +15,20 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* TanStack Router requires strictNullChecks */
+    "strictNullChecks": true,
+
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "ignoreDeprecations": "6.0",
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"]
 }

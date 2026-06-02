@@ -9,12 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardWorkflowsIndexRouteImport } from './routes/dashboard/workflows/index'
+import { Route as DashboardWorkflowsWorkflowIdRouteImport } from './routes/dashboard/workflows/$workflowId'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,40 +32,104 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardWorkflowsIndexRoute = DashboardWorkflowsIndexRouteImport.update({
+  id: '/workflows/',
+  path: '/workflows/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardWorkflowsWorkflowIdRoute =
+  DashboardWorkflowsWorkflowIdRouteImport.update({
+    id: '/workflows/$workflowId',
+    path: '/workflows/$workflowId',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/workflows/$workflowId': typeof DashboardWorkflowsWorkflowIdRoute
+  '/dashboard/workflows/': typeof DashboardWorkflowsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/sign-in': typeof SignInRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/workflows/$workflowId': typeof DashboardWorkflowsWorkflowIdRoute
+  '/dashboard/workflows': typeof DashboardWorkflowsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/workflows/$workflowId': typeof DashboardWorkflowsWorkflowIdRoute
+  '/dashboard/workflows/': typeof DashboardWorkflowsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/sign-in'
+    | '/dashboard/settings'
+    | '/dashboard/'
+    | '/dashboard/workflows/$workflowId'
+    | '/dashboard/workflows/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to:
+    | '/'
+    | '/sign-in'
+    | '/dashboard/settings'
+    | '/dashboard'
+    | '/dashboard/workflows/$workflowId'
+    | '/dashboard/workflows'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/sign-in'
+    | '/dashboard/settings'
+    | '/dashboard/'
+    | '/dashboard/workflows/$workflowId'
+    | '/dashboard/workflows/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  SignInRoute: typeof SignInRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,12 +139,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/workflows/': {
+      id: '/dashboard/workflows/'
+      path: '/workflows'
+      fullPath: '/dashboard/workflows/'
+      preLoaderRoute: typeof DashboardWorkflowsIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/workflows/$workflowId': {
+      id: '/dashboard/workflows/$workflowId'
+      path: '/workflows/$workflowId'
+      fullPath: '/dashboard/workflows/$workflowId'
+      preLoaderRoute: typeof DashboardWorkflowsWorkflowIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
+interface DashboardRouteRouteChildren {
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardWorkflowsWorkflowIdRoute: typeof DashboardWorkflowsWorkflowIdRoute
+  DashboardWorkflowsIndexRoute: typeof DashboardWorkflowsIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardWorkflowsWorkflowIdRoute: DashboardWorkflowsWorkflowIdRoute,
+  DashboardWorkflowsIndexRoute: DashboardWorkflowsIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,32 +1,36 @@
-import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
+import {
+  Link,
+  Outlet,
+  createRootRouteWithContext,
+} from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import type { QueryClient } from '@tanstack/react-query'
+import appCss from '../index.css?url'
 
-export const Route = createRootRoute({
-  component: RootLayout,
-});
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient
+}>()({
+  head: () => ({
+    links: [{ rel: 'stylesheet', href: appCss }],
+  }),
+  component: RootComponent,
+  notFoundComponent: () => {
+    return (
+      <div>
+        <p>This is the notFoundComponent configured on root route</p>
+        <Link to="/">Start Over</Link>
+      </div>
+    )
+  },
+})
 
-function RootLayout() {
+function RootComponent() {
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <Link to="/" className="brand">
-          OndeckAI
-        </Link>
-        <nav className="app-nav">
-          <Link
-            to="/"
-            activeOptions={{ exact: true }}
-            activeProps={{ className: "active" }}
-          >
-            Home
-          </Link>
-          <Link to="/about" activeProps={{ className: "active" }}>
-            About
-          </Link>
-        </nav>
-      </header>
-      <main className="app-main">
-        <Outlet />
-      </main>
-    </div>
-  );
+    <>
+      <Outlet />
+      <ReactQueryDevtools buttonPosition="bottom-left" />
+      <TanStackRouterDevtools position="bottom-right" />
+    </>
+  )
 }
