@@ -12,22 +12,51 @@
       "types": "./dist/database.types.d.ts",
       "import": "./dist/database.types.js"
     },
+    "./types/Alerts": {
+      "types": "./dist/types/Alerts.d.ts",
+      "import": "./dist/types/Alerts.js"
+    },
+    "./types/Detections": {
+      "types": "./dist/types/Detections.d.ts",
+      "import": "./dist/types/Detections.js"
+    },
+    "./types/ExecutionNodes": {
+      "types": "./dist/types/ExecutionNodes.d.ts",
+      "import": "./dist/types/ExecutionNodes.js"
+    },
+    "./types/Nodes": {
+      "types": "./dist/types/Nodes.d.ts",
+      "import": "./dist/types/Nodes.js"
+    },
+    "./types/TimelineEvents": {
+      "types": "./dist/types/TimelineEvents.d.ts",
+      "import": "./dist/types/TimelineEvents.js"
+    },
+    "./types/Users": {
+      "types": "./dist/types/Users.d.ts",
+      "import": "./dist/types/Users.js"
+    },
+    "./types/Videos": {
+      "types": "./dist/types/Videos.d.ts",
+      "import": "./dist/types/Videos.js"
+    },
+    "./types/WorkflowExecution": {
+      "types": "./dist/types/WorkflowExecution.d.ts",
+      "import": "./dist/types/WorkflowExecution.js"
+    },
+    "./types/WorkFlowEdges": {
+      "types": "./dist/types/WorkFlowEdges.d.ts",
+      "import": "./dist/types/WorkFlowEdges.js"
+    },
     "./types/Workflows": {
       "types": "./dist/types/Workflows.d.ts",
       "import": "./dist/types/Workflows.js"
-      },
-      "./types/Nodes": {
-        "types": "./dist/types/Nodes.d.ts",
-        "import": "./dist/types/Nodes.js"
-      },
-      "./types/WorkFlowEdges": {
-        "types": "./dist/types/WorkFlowEdges.d.ts",
-        "import": "./dist/types/WorkFlowEdges.js"
-      }
+    }
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "gen:types": "node -e \"const {execSync}=require('child_process'); const fs=require('fs'); const out=execSync('npx supabase gen types typescript --project-id pnjidluecgrgxjfzihyk',{encoding:'utf8'}); fs.writeFileSync('src/database.types.ts', out, 'utf8');\""
   },
   "devDependencies": {
     "typescript": "~5.8.3"

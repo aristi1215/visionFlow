@@ -41,18 +41,6 @@ class Workflow {
         if(error) throw new DatabaseError(error.message);        
         return data;
     };
-
-    
-
-    static async executeWorkflow(id: string){
-    };
-
-    
-    static async stopWorkflowExecution(id: string){};
-    
-    static async getWorkflowExecutionHistory(id: string){};
-
-
 }
 
 export default Workflow;

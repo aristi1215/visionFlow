@@ -1,8 +1,9 @@
-import { DatabaseError, NotFoundError,ValidationError  } from "../../errors/errors.js";
-import { supabase } from "../../integrations/supabase.js";
+import { DatabaseError, NotFoundError,ValidationError  } from "../errors/errors.js";
+import { supabase } from "../integrations/supabase.js";
 import type { NodeCreate, NodeUpdate } from "@ondeckai/shared/types/Nodes";
 
 
+//Main workflowNode class.
 
 class WorkflowNode {
 

@@ -25,9 +25,8 @@
 
 export const designSystem = {
   brand: {
-    name: 'OnDeck',
-    inspiration: 'Cartage / Wilson',
-    tone: 'Elegant, enterprise, warm, trustworthy',
+    name: 'Vision Flow',
+    tone: 'Video workflow AI',
   },
   fonts: {
     display: 'Newsreader',

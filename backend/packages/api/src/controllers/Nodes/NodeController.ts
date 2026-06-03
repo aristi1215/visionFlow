@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import type { NodeRequest } from "@ondeckai/shared/types/Nodes";
-import WorkflowNode from "../../services/nodes/WorkflowNode.js";
+import WorkflowNode from "../../services/WorkflowNode.js";
 
 
 class NodeController {
