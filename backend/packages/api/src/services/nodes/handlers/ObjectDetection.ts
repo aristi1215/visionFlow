@@ -1,19 +1,16 @@
 import { NodeTypes } from "@ondeckai/shared/types/Nodes";
 import { supabase } from "../../../integrations/supabase.js";
 import { DatabaseError, ValidationError } from "../../../errors/errors.js";
-import { gemini } from "../../../integrations/gemini.js";
-import { getOrCreateVideoCache } from "../../../integrations/geminiVideoCache.js";
+import { generateContentWithVideo } from "../../../integrations/geminiVideoCache.js";
 import { objectDetectionSchema } from "../../../schemas/NodesSchemas.js";
 import type { NodeRunInput, WorkflowRunContext } from "../../../types/WorkflowNodes.js";
-
-const GEMINI_MODEL = "gemini-3.5-flash";
 
 class ObjectDetectionNode {
     static readonly type: NodeTypes = "object_detection";
 
     static async run(ctx: WorkflowRunContext, input: NodeRunInput) {
         return ObjectDetectionNode.execute(
-            ctx.videoUrl,
+            ctx.video.video_url,
             input.executionNodeId,
             input.startedAt,
             ctx.videoId
@@ -26,11 +23,10 @@ class ObjectDetectionNode {
         startedAt: string,
         videoId: number
     ): Promise<{ output_json: string }> {
-        const cachedContent = await getOrCreateVideoCache(videoId, videoUrl);
-
-        const response = await gemini.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: `Detect objects in the video.
+        const response = await generateContentWithVideo(
+            videoId,
+            videoUrl,
+            `Detect objects in the video.
 Return ONLY valid JSON:
 
 {
@@ -41,12 +37,11 @@ Return ONLY valid JSON:
     }
   ]
 }`,
-            config: {
-                cachedContent,
+            {
                 responseMimeType: "application/json",
                 responseSchema: objectDetectionSchema,
             },
-        });
+        );
 
         const detections = response.text;
         const completedAt = new Date().toISOString();

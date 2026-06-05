@@ -15,7 +15,7 @@
   h2,
   h3,
   h4 {
-    @apply font-display font-medium tracking-tight text-foreground;
+    @apply font-sans font-semibold tracking-tight text-foreground;
   }
 
   h1 {
@@ -43,14 +43,14 @@
   }
 
   a:hover {
-    @apply text-orange-600;
+    @apply text-blue-700 dark:text-blue-400;
   }
 
   ::selection {
-    @apply bg-orange-200 text-brown-900;
+    @apply bg-blue-100 text-zinc-900;
   }
 
   .dark ::selection {
-    @apply bg-orange-900 text-orange-100;
+    @apply bg-blue-900 text-blue-100;
   }
 }

@@ -1,11 +1,11 @@
 import { useVideos } from '@/hooks/useVideos'
-import type { VideoRow } from '@ondeckai/shared/types/Videos'
+import type { VideoWithDelivery } from '@ondeckai/shared/types/VideoApi'
 import { cn } from '@/lib/cn'
 import { Film } from 'lucide-react'
 
 type VideoPickerProps = {
   selectedVideoId: number | null
-  onSelect: (video: VideoRow) => void
+  onSelect: (video: VideoWithDelivery) => void
   className?: string
 }
 
@@ -58,8 +58,8 @@ export function VideoPicker({
               className={cn(
                 'flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors',
                 selected
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:bg-muted/50',
+                  ? 'border-primary/50 bg-primary/5'
+                  : 'border-border/50 hover:border-border hover:bg-muted/50',
               )}
             >
               <div className="rounded-md bg-muted p-2">

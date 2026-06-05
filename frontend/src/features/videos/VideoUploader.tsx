@@ -1,22 +1,20 @@
 import { useCallback, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useDropzone } from 'react-dropzone'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui'
-import { useCreateVideo } from '@/hooks/useVideos'
-import {
-  extractVideoMetadataFromFile,
-  uploadToCloudinary,
-} from '@/lib/cloudinary/uploadVideo'
-import type { VideoRow } from '@ondeckai/shared/types/Videos'
+import { uploadVideo, videoKeys } from '@/lib/api/videos'
+import { extractVideoMetadataFromFile } from '@/lib/video/metadata'
+import type { VideoWithDelivery } from '@ondeckai/shared/types/VideoApi'
 import { cn } from '@/lib/cn'
 
 type VideoUploaderProps = {
-  onUploaded: (video: VideoRow) => void
+  onUploaded: (video: VideoWithDelivery) => void
   className?: string
 }
 
 export function VideoUploader({ onUploaded, className }: VideoUploaderProps) {
-  const createVideo = useCreateVideo()
+  const queryClient = useQueryClient()
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -28,20 +26,9 @@ export function VideoUploader({ onUploaded, className }: VideoUploaderProps) {
       setProgress(0)
 
       try {
-        const [cloudinaryResult, metadata] = await Promise.all([
-          uploadToCloudinary(file, setProgress),
-          extractVideoMetadataFromFile(file),
-        ])
-
-        const video = await createVideo.mutateAsync({
-          duration: cloudinaryResult.duration ?? metadata.duration,
-          fps: metadata.fps,
-          format: cloudinaryResult.format || file.name.split('.').pop() || 'mp4',
-          videoUrl: cloudinaryResult.secure_url,
-          width: cloudinaryResult.width ?? metadata.width,
-          height: cloudinaryResult.height ?? metadata.height,
-          size: cloudinaryResult.bytes ?? file.size,
-        })
+        const metadata = await extractVideoMetadataFromFile(file)
+        const video = await uploadVideo(file, metadata, setProgress)
+        await queryClient.invalidateQueries({ queryKey: videoKeys.all })
 
         onUploaded(video)
       } catch (uploadError) {
@@ -54,7 +41,7 @@ export function VideoUploader({ onUploaded, className }: VideoUploaderProps) {
         setIsUploading(false)
       }
     },
-    [createVideo, onUploaded],
+    [onUploaded, queryClient],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -72,7 +59,7 @@ export function VideoUploader({ onUploaded, className }: VideoUploaderProps) {
       <div
         {...getRootProps()}
         className={cn(
-          'cursor-pointer rounded-lg border border-dashed border-border p-8 text-center transition-colors',
+          'cursor-pointer rounded-lg border border-dashed border-border/60 p-8 text-center transition-all duration-200',
           isDragActive && 'border-primary bg-primary/5',
           isUploading && 'pointer-events-none opacity-70',
         )}
@@ -83,7 +70,7 @@ export function VideoUploader({ onUploaded, className }: VideoUploaderProps) {
           {isDragActive ? 'Drop video here' : 'Drag & drop a video, or click to browse'}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Uploaded to Cloudinary, then registered for workflow runs.
+          Stored in Supabase. Cloudinary optimization will be added later.
         </p>
       </div>
 

@@ -1,19 +1,16 @@
 import { supabase } from "../../../integrations/supabase.js";
 import { ValidationError, DatabaseError } from "../../../errors/errors.js";
-import { getOrCreateVideoCache } from "../../../integrations/geminiVideoCache.js";
+import { generateContentWithVideo } from "../../../integrations/geminiVideoCache.js";
 import { NodeTypes } from "@ondeckai/shared/types/Nodes";
-import { gemini } from "../../../integrations/gemini.js";
 import { timelineEventsSchema } from "../../../schemas/TimelineEventsSchema.js";
 import type { NodeRunInput, WorkflowRunContext } from "../../../types/WorkflowNodes.js";
-
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 class TimelineNode {
     static readonly type: NodeTypes = "timeline_events_generator";
 
     static async run(ctx: WorkflowRunContext, input: NodeRunInput) {
         return TimelineNode.execute(
-            ctx.videoUrl,
+            ctx.video.video_url,
             input.executionNodeId,
             input.startedAt,
             ctx.videoId
@@ -26,11 +23,10 @@ class TimelineNode {
         startedAt: string,
         videoId: number
     ): Promise<{ output_json: string }> {
-        const cachedContent = await getOrCreateVideoCache(videoId, videoUrl);
-
-        const response = await gemini.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: `Make a timeline of the video, include timestamp of the events. Focus only on important events related to the video content.
+        const response = await generateContentWithVideo(
+            videoId,
+            videoUrl,
+            `Make a timeline of the video, include timestamp of the events. Focus only on important events related to the video content.
 Return ONLY valid JSON:
 
 {
@@ -42,12 +38,11 @@ Return ONLY valid JSON:
     }
   ]
 }`,
-            config: {
-                cachedContent,
+            {
                 responseMimeType: "application/json",
                 responseSchema: timelineEventsSchema,
             },
-        });
+        );
 
         const timeLineEvents = response.text;
         const completedAt = new Date().toISOString();

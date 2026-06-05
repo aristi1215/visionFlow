@@ -24,7 +24,7 @@ export const NODE_REGISTRY: NodeDefinition[] = [
     label: 'Upload video',
     description: 'Upload a video file as the workflow input source.',
     category: 'ingest',
-    accentClass: 'border-orange-400',
+    accentClass: 'border-blue-400',
     configFields: [
       { label: 'Accepted formats', placeholder: 'mp4, mov, avi', type: 'text' },
       { label: 'Max file size (MB)', placeholder: '500', type: 'number' },
@@ -35,7 +35,7 @@ export const NODE_REGISTRY: NodeDefinition[] = [
     label: 'Extract frames',
     description: 'Extract frames from the video at a specified interval.',
     category: 'ingest',
-    accentClass: 'border-orange-300',
+    accentClass: 'border-blue-300',
     configFields: [
       { label: 'Frames per second', placeholder: '1', type: 'number' },
       { label: 'Interval (seconds)', placeholder: '5', type: 'number' },
@@ -46,7 +46,7 @@ export const NODE_REGISTRY: NodeDefinition[] = [
     label: 'Scene analysis',
     description: 'Analyze scenes and context within the video.',
     category: 'analysis',
-    accentClass: 'border-brown-400',
+    accentClass: 'border-violet-400',
     configFields: [
       { label: 'Analysis depth', placeholder: 'Standard', type: 'select', options: ['Quick', 'Standard', 'Deep'] },
     ],
@@ -56,7 +56,7 @@ export const NODE_REGISTRY: NodeDefinition[] = [
     label: 'Object detection',
     description: 'Detect objects that appear in the video.',
     category: 'analysis',
-    accentClass: 'border-brown-500',
+    accentClass: 'border-violet-500',
     configFields: [
       { label: 'Object classes', placeholder: 'person, vehicle, package', type: 'text' },
       { label: 'Confidence threshold', placeholder: '0.75', type: 'number' },
@@ -67,7 +67,7 @@ export const NODE_REGISTRY: NodeDefinition[] = [
     label: 'Timeline generator',
     description: 'Build a structured timeline of events from the video.',
     category: 'analysis',
-    accentClass: 'border-brown-300',
+    accentClass: 'border-violet-300',
     configFields: [
       { label: 'Event granularity', placeholder: 'Medium', type: 'select', options: ['Fine', 'Medium', 'Coarse'] },
     ],
@@ -88,7 +88,7 @@ export const NODE_REGISTRY: NodeDefinition[] = [
     label: 'AI Review',
     description: 'Ask a question to an AI model about the video content.',
     category: 'analysis',
-    accentClass: 'border-orange-500',
+    accentClass: 'border-primary',
     configFields: [
       { label: 'Question / prompt', placeholder: 'What safety issues occurred?', type: 'textarea' },
     ],
@@ -98,7 +98,7 @@ export const NODE_REGISTRY: NodeDefinition[] = [
     label: 'Save results',
     description: 'Output results and send them to a configured channel.',
     category: 'output',
-    accentClass: 'border-green-500',
+    accentClass: 'border-zinc-400',
     configFields: [
       { label: 'Output format', placeholder: 'JSON', type: 'select', options: ['JSON', 'CSV', 'PDF'] },
       { label: 'Destination channel', placeholder: 'slack, email, webhook', type: 'text' },

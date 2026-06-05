@@ -1,26 +1,24 @@
 /**
- * Cartage-inspired design system reference.
+ * Vision Flow design system reference.
  *
- * Brand direction: elegant enterprise logistics — warm orange CTAs,
- * rich brown neutrals, deep black foundations. Full light/dark support.
+ * Brand direction: Vercel-inspired minimal — neutral zinc palette,
+ * blue accent, restrained gradients and motion. Full light/dark support.
  *
  * Typography:
- * - Display: Newsreader (headings, editorial feel)
- * - UI/Body: Inter (interface, data, forms)
+ * - UI/Body/Headings: Geist (fallback Inter)
  *
  * Semantic tokens (use these in components):
  * - bg-background, text-foreground
  * - bg-card, text-card-foreground
- * - bg-primary, text-primary-foreground (orange CTA)
- * - bg-secondary, text-secondary-foreground (brown neutral)
+ * - bg-primary, text-primary-foreground (blue accent)
+ * - bg-secondary, text-secondary-foreground
  * - bg-muted, text-muted-foreground
  * - border-border, ring-ring
- * - bg-sidebar, text-sidebar-foreground (dark nav)
+ * - bg-sidebar, text-sidebar-foreground
  *
- * Raw palette:
- * - orange-50 … orange-900
- * - brown-50 … brown-900
- * - black, white
+ * Gradients (CSS custom properties):
+ * - var(--gradient-hero) — radial mesh for hero sections
+ * - var(--gradient-border) — subtle linear for featured cards
  */
 
 export const designSystem = {
@@ -29,21 +27,18 @@ export const designSystem = {
     tone: 'Video workflow AI',
   },
   fonts: {
-    display: 'Newsreader',
-    sans: 'Inter',
+    sans: 'Geist',
   },
   colors: {
-    orange: {
-      primary: '#d95f2b',
-      light: '#e8784a',
-      dark: '#b84a1f',
+    accent: {
+      light: '#0070f3',
+      dark: '#3291ff',
     },
-    brown: {
-      light: '#f0ebe4',
-      mid: '#5c4a3a',
-      dark: '#1a1410',
+    neutral: {
+      light: '#fafafa',
+      mid: '#71717a',
+      dark: '#09090b',
     },
-    black: '#0a0a0a',
-    cream: '#faf8f5',
+    destructive: '#ef4444',
   },
 } as const

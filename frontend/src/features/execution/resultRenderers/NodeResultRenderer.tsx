@@ -1,7 +1,12 @@
 import type { NodeTypes } from '@ondeckai/shared/types/Nodes'
 import { Badge } from '@/components/ui'
 import { NODE_BY_TYPE } from '@/features/workflows/nodeRegistry'
-import { formatOutputForDisplay, parseOutputJson } from './parseOutputJson'
+import {
+  formatOutputForDisplay,
+  normalizeDetections,
+  normalizeTimelineEvents,
+} from './parseOutputJson'
+import { SaveResultsReport } from './SaveResultsReport'
 
 type NodeResultRendererProps = {
   nodeType: NodeTypes
@@ -10,7 +15,7 @@ type NodeResultRendererProps = {
 }
 
 function DetectionList({ data }: { data: unknown }) {
-  const items = Array.isArray(data) ? data : []
+  const items = normalizeDetections(data)
   if (items.length === 0) {
     return <p className="text-sm text-muted-foreground">No detections returned.</p>
   }
@@ -20,7 +25,7 @@ function DetectionList({ data }: { data: unknown }) {
       {items.map((item, index) => (
         <li
           key={index}
-          className="rounded-md border border-border bg-muted/30 px-3 py-2 text-sm"
+          className="rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm"
         >
           {typeof item === 'object' && item !== null
             ? Object.entries(item as Record<string, unknown>)
@@ -34,7 +39,7 @@ function DetectionList({ data }: { data: unknown }) {
 }
 
 function TimelineList({ data }: { data: unknown }) {
-  const items = Array.isArray(data) ? data : []
+  const items = normalizeTimelineEvents(data)
   if (items.length === 0) {
     return <p className="text-sm text-muted-foreground">No timeline events returned.</p>
   }
@@ -44,12 +49,19 @@ function TimelineList({ data }: { data: unknown }) {
       {items.map((item, index) => (
         <li key={index} className="text-sm">
           {typeof item === 'object' && item !== null ? (
-            <div>
-              {'timestamp' in (item as object) && (
-                <span className="font-medium text-foreground">
-                  {String((item as Record<string, unknown>).timestamp)}{' '}
-                </span>
-              )}
+            <div className="space-y-0.5">
+              <div className="flex flex-wrap items-center gap-2">
+                {'timestamp' in (item as object) && (
+                  <span className="font-medium text-foreground">
+                    {String((item as Record<string, unknown>).timestamp)}
+                  </span>
+                )}
+                {'event_type' in (item as object) && (
+                  <Badge variant="muted">
+                    {String((item as Record<string, unknown>).event_type)}
+                  </Badge>
+                )}
+              </div>
               <span className="text-muted-foreground">
                 {'description' in (item as object)
                   ? String((item as Record<string, unknown>).description)
@@ -90,11 +102,11 @@ export function NodeResultRenderer({
     output && typeof output === 'object' ? (output as Record<string, unknown>) : {}
 
   if (nodeType === 'object_detection' && 'output_json' in record) {
-    return <DetectionList data={parseOutputJson(record.output_json)} />
+    return <DetectionList data={record.output_json} />
   }
 
   if (nodeType === 'timeline_events_generator' && 'output_json' in record) {
-    return <TimelineList data={parseOutputJson(record.output_json)} />
+    return <TimelineList data={record.output_json} />
   }
 
   if (nodeType === 'ai_description_node' && 'output_response' in record) {
@@ -109,7 +121,7 @@ export function NodeResultRenderer({
     return (
       <div className="space-y-2 text-sm">
         {'channel' in record && (
-          <Badge variant="brown">{String(record.channel)}</Badge>
+          <Badge variant="muted">{String(record.channel)}</Badge>
         )}
         {'messageSent' in record && (
           <p className="whitespace-pre-wrap text-foreground">
@@ -120,12 +132,8 @@ export function NodeResultRenderer({
     )
   }
 
-  if (nodeType === 'save_results_node' && 'output_report' in record) {
-    return (
-      <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-md bg-muted/30 p-3 text-sm">
-        {String(record.output_report)}
-      </pre>
-    )
+  if (nodeType === 'save_results_node') {
+    return <SaveResultsReport output={record} />
   }
 
   const label = NODE_BY_TYPE[nodeType]?.label ?? nodeType

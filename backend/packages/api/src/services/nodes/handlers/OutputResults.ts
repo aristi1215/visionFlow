@@ -1,15 +1,12 @@
 import { NodeTypes } from "@ondeckai/shared/types/Nodes";
 import { supabase } from "../../../integrations/supabase.js";
 import { DatabaseError } from "../../../errors/errors.js";
-import { gemini } from "../../../integrations/gemini.js";
-import { getOrCreateVideoCache } from "../../../integrations/geminiVideoCache.js";
+import { generateContentWithVideo } from "../../../integrations/geminiVideoCache.js";
 import type { NodeRunInput, WorkflowRunContext } from "../../../types/WorkflowNodes.js";
 import {
     aggregateUpstreamResults,
     type OutputResults,
 } from "../../workflow/aggregateResults.js";
-
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 class OutputResultsNode {
     static readonly type: NodeTypes = "save_results_node";
@@ -35,19 +32,12 @@ class OutputResultsNode {
             These are the workflows results: ${JSON.stringify(results)}
         `;
 
-        const cachedContent = await getOrCreateVideoCache(
+        const response = await generateContentWithVideo(
             videoInformation.id,
-            videoInformation.video_url
+            videoInformation.video_url,
+            structuredTextReportPrompt,
+            { responseMimeType: "text/plain" },
         );
-
-        const response = await gemini.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: structuredTextReportPrompt,
-            config: {
-                cachedContent,
-                responseMimeType: "text/plain",
-            },
-        });
 
         const structuredTextReport = response.text;
         const completedAt = new Date().toISOString();

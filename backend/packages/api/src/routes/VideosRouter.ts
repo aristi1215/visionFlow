@@ -1,8 +1,20 @@
 import { Router } from "express";
 import catchAsync from "../errors/catchAsync.js";
 import VideoController from "../controllers/VideoController.js";
+import { uploadVideoMiddleware } from "../middleware/uploadVideo.js";
 
 const router = Router();
+
+router.post(
+    "/upload",
+    (req, res, next) => {
+        uploadVideoMiddleware(req, res, (error) => {
+            if (error) next(error);
+            else next();
+        });
+    },
+    catchAsync(VideoController.uploadVideo),
+);
 
 router
     .route("/")

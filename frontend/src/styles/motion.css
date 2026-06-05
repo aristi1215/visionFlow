@@ -1,0 +1,65 @@
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation: fade-in-up 0.3s ease-out both;
+}
+
+.animate-in-fade {
+  animation: fade-in 0.2s ease-out both;
+}
+
+.animate-in-scale {
+  animation: scale-in 0.2s ease-out both;
+}
+
+.hover-lift {
+  transition:
+    transform 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  .animate-in-fade,
+  .animate-in-scale {
+    animation: none;
+  }
+
+  .hover-lift:hover {
+    transform: none;
+  }
+}

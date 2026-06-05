@@ -19,11 +19,11 @@ export function NodePalette({ onAddNode, className }: NodePaletteProps) {
   return (
     <aside
       className={cn(
-        'flex w-60 shrink-0 flex-col overflow-hidden border-r border-border bg-card',
+        'flex w-60 shrink-0 flex-col overflow-hidden border-r border-border/50 bg-background/95 backdrop-blur-xl',
         className,
       )}
     >
-      <div className="shrink-0 border-b border-border px-4 py-3">
+      <div className="shrink-0 border-b border-border/50 px-4 py-3">
         <h3 className="text-sm font-medium text-foreground">Node library</h3>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Drag or click to add to canvas
@@ -36,7 +36,7 @@ export function NodePalette({ onAddNode, className }: NodePaletteProps) {
 
           return (
             <div key={category} className="mb-4 last:mb-0">
-              <p className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="mb-2 px-1 text-xs font-medium text-muted-foreground">
                 {CATEGORY_LABELS[category]}
               </p>
               <div className="space-y-1">
@@ -61,10 +61,10 @@ export function NodePalette({ onAddNode, className }: NodePaletteProps) {
                     }}
                     className={cn(
                       'flex w-full cursor-grab items-start gap-2 rounded-lg border border-transparent px-2 py-2 text-left',
-                      'transition-colors hover:border-border hover:bg-muted active:cursor-grabbing',
+                      'transition-all duration-200 hover:border-border/50 hover:bg-muted/50 active:cursor-grabbing',
                     )}
                   >
-                    <div className="rounded-md bg-muted p-1.5">
+                    <div className="rounded-md bg-muted/60 p-1.5">
                       <NodeIcon type={node.type} className="h-3.5 w-3.5" />
                     </div>
                     <div className="min-w-0">

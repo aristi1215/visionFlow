@@ -22,7 +22,7 @@ function WorkflowEditorPage() {
 
   useSetDashboardHeader({
     title: 'Workflow editor',
-    subtitle: 'Canvas',
+    subtitle: '',
   })
 
   return (

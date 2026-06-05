@@ -1,19 +1,19 @@
 .workflow-canvas .react-flow {
   --xy-background-color: transparent;
   --xy-minimap-background-color: var(--card);
-  --xy-minimap-mask-color: rgb(26 20 16 / 0.08);
+  --xy-minimap-mask-color: rgb(0 0 0 / 0.06);
   --xy-controls-button-background-color: var(--card);
   --xy-controls-button-background-color-hover: var(--muted);
   --xy-controls-button-color: var(--foreground);
   --xy-controls-button-color-hover: var(--foreground);
   --xy-controls-button-border-color: var(--border);
-  --xy-edge-stroke: var(--color-orange-400);
+  --xy-edge-stroke: var(--color-blue-400);
   --xy-edge-stroke-selected: var(--primary);
   --xy-connectionline-stroke: var(--primary);
 }
 
 .dark .workflow-canvas .react-flow {
-  --xy-minimap-mask-color: rgb(0 0 0 / 0.2);
+  --xy-minimap-mask-color: rgb(0 0 0 / 0.25);
 }
 
 .workflow-canvas .react-flow__controls {
@@ -40,5 +40,5 @@
 
 .workflow-canvas .react-flow__background pattern circle {
   fill: var(--muted-foreground);
-  opacity: 0.15;
+  opacity: 0.08;
 }

@@ -12,9 +12,9 @@ type AlertProps = {
 
 const variantStyles: Record<AlertVariant, string> = {
   error: 'border-destructive/30 bg-destructive/5 text-destructive',
-  success: 'border-emerald-500/30 bg-emerald-500/5 text-emerald-800 dark:text-emerald-300',
-  info: 'border-border bg-muted/40 text-foreground',
-  warning: 'border-orange-400/30 bg-orange-50 text-orange-900 dark:bg-orange-950/30 dark:text-orange-200',
+  success: 'border-primary/30 bg-primary/5 text-primary',
+  info: 'border-border/60 bg-muted/40 text-foreground',
+  warning: 'border-zinc-400/30 bg-muted/60 text-foreground',
 }
 
 const icons: Record<AlertVariant, typeof AlertCircle> = {
@@ -44,7 +44,7 @@ export function Alert({
       <Icon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
       <div className="min-w-0">
         {title && <p className="font-medium">{title}</p>}
-        <div className={cn(title && 'mt-1', 'text-[0.8125rem] leading-relaxed opacity-90')}>
+        <div className={cn(title && 'mt-1', 'text-sm leading-relaxed opacity-90')}>
           {children}
         </div>
       </div>

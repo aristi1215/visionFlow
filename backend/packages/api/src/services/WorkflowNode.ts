@@ -23,9 +23,48 @@ class WorkflowNode {
 
     static async removeWorkflowNode(nodeId: string){
         const nodeIdNumber = parseInt(nodeId);
-        const {data, error} = await supabase.from('workflow_nodes').delete().eq('id', nodeIdNumber);
-        if(error) throw new DatabaseError(error.message);
-        return data; 
+
+        const { data: executionNodes, error: executionNodesError } = await supabase
+            .from("execution_nodes")
+            .select("id")
+            .eq("node_id", nodeIdNumber);
+        if (executionNodesError) throw new DatabaseError(executionNodesError.message);
+
+        const executionNodeIds = (executionNodes ?? []).map((node) => node.id);
+        if (executionNodeIds.length > 0) {
+            const dependentTables = ["alerts", "detections", "timeline_events", "video_analysis"] as const;
+            for (const table of dependentTables) {
+                const { error } = await supabase.from(table).delete().in("execution_node", executionNodeIds);
+                if (error) throw new DatabaseError(error.message);
+            }
+
+            const { error: deleteExecutionNodesError } = await supabase
+                .from("execution_nodes")
+                .delete()
+                .eq("node_id", nodeIdNumber);
+            if (deleteExecutionNodesError) throw new DatabaseError(deleteExecutionNodesError.message);
+        }
+
+        const { error: sourceEdgesError } = await supabase
+            .from("workflow_edges")
+            .delete()
+            .eq("source_node", nodeIdNumber);
+        if (sourceEdgesError) throw new DatabaseError(sourceEdgesError.message);
+
+        const { error: targetEdgesError } = await supabase
+            .from("workflow_edges")
+            .delete()
+            .eq("target_node", nodeIdNumber);
+        if (targetEdgesError) throw new DatabaseError(targetEdgesError.message);
+
+        const { data, error } = await supabase
+            .from("workflow_nodes")
+            .delete()
+            .eq("id", nodeIdNumber)
+            .select();
+        if (error) throw new DatabaseError(error.message);
+        if (!data || data.length === 0) throw new NotFoundError("Node not found");
+        return data;
     };
 
 
@@ -65,8 +104,7 @@ class WorkflowNode {
         const workflowIdNumber = parseInt(workflowId);
         const {data, error} = await supabase.from('workflow_nodes').select('*').eq('workflow_id', workflowIdNumber);
         if(error) throw new DatabaseError(error.message);
-        if(!data || data.length === 0) throw new NotFoundError("Nodes not found");
-        return data;
+        return data ?? [];
     };
 
     

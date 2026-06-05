@@ -12,6 +12,9 @@ import {
     buildPredecessorMap,
     resolveUpstreamOutputs,
 } from "./resolveInputs.js";
+// TODO: resolveWorkflowVideoUrl currently returns a direct Supabase URL.
+// Switch to Cloudinary delivery once integrations/cloudinary.ts is wired up.
+import { resolveWorkflowVideoUrl } from "../../utils/videoDelivery.js";
 
 export type { WorkflowExecutionSummary };
 
@@ -46,7 +49,7 @@ export async function runWorkflow(
     const ctx: WorkflowRunContext = {
         executionId: execution.id,
         videoId: video.id,
-        videoUrl: video.video_url,
+        videoUrl: resolveWorkflowVideoUrl(video.video_url),
         workflowId,
         video,
     };
@@ -151,6 +154,16 @@ export async function runWorkflow(
                 .eq("id", ctx.executionId);
         }
 
+        const saveResultsNode = nodeResults.find((r) => r.type === "save_results_node");
+        const outputReport =
+            saveResultsNode?.output &&
+            typeof saveResultsNode.output === "object" &&
+            "output_report" in saveResultsNode.output &&
+            typeof (saveResultsNode.output as { output_report?: unknown }).output_report ===
+                "string"
+                ? (saveResultsNode.output as { output_report: string }).output_report
+                : null;
+
         return {
             executionId: ctx.executionId,
             workflowId,
@@ -159,6 +172,7 @@ export async function runWorkflow(
             executionOrder: graph.executionOrder,
             skippedDanglingNodes: graph.danglingNodes,
             nodeResults,
+            outputReport,
         };
     } catch (error) {
         await supabase

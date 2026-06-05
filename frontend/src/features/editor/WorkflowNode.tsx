@@ -24,14 +24,14 @@ export type WorkflowNodeData = {
 const statusStyles: Record<NodeExecutionStatus, string> = {
   idle: '',
   running: 'animate-pulse ring-2 ring-primary/50',
-  completed: 'ring-2 ring-emerald-500/40',
+  completed: 'ring-2 ring-primary/40',
   failed: 'ring-2 ring-destructive/50',
   skipped: 'opacity-60',
 }
 
 function ExecutionStatusIcon({ status }: { status: NodeExecutionStatus }) {
   if (status === 'running') return <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-  if (status === 'completed') return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+  if (status === 'completed') return <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
   if (status === 'failed') return <XCircle className="h-3.5 w-3.5 text-destructive" />
   if (status === 'skipped') return <SkipForward className="h-3.5 w-3.5 text-muted-foreground" />
   return null
@@ -45,10 +45,10 @@ function WorkflowNodeComponent({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(
-        'min-w-[180px] rounded-lg border-2 bg-card px-3 py-2.5 shadow-sm transition-shadow',
+        'min-w-[180px] rounded-lg border-2 bg-card/95 px-3 py-2.5 shadow-sm backdrop-blur-sm transition-shadow',
         definition.accentClass,
         statusStyles[executionStatus],
-        selected && 'shadow-md ring-2 ring-ring ring-offset-2 ring-offset-background',
+        selected && 'shadow-md ring-2 ring-ring/40 ring-offset-2 ring-offset-background',
       )}
     >
       <Handle
@@ -57,7 +57,7 @@ function WorkflowNodeComponent({ data, selected }: NodeProps) {
         className="!h-2.5 !w-2.5 !border-2 !border-background !bg-muted-foreground"
       />
       <div className="flex items-start gap-2">
-        <div className="rounded-md bg-muted p-1.5">
+        <div className="rounded-md bg-muted/60 p-1.5">
           <NodeIcon type={nodeData.nodeType} className="h-4 w-4 text-foreground" />
         </div>
         <div className="min-w-0 flex-1">
@@ -67,7 +67,7 @@ function WorkflowNodeComponent({ data, selected }: NodeProps) {
             </p>
             <ExecutionStatusIcon status={executionStatus} />
           </div>
-          <Badge variant="brown" className="mt-1 text-[10px]">
+          <Badge variant="muted" className="mt-1 text-[10px]">
             {definition.category}
           </Badge>
         </div>

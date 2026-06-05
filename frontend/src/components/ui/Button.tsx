@@ -11,15 +11,15 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-primary-foreground hover:bg-orange-600 active:bg-orange-700 shadow-sm',
+    'bg-primary text-primary-foreground hover:bg-blue-700 dark:hover:bg-blue-500 shadow-sm',
   secondary:
-    'bg-secondary text-secondary-foreground hover:bg-brown-200 dark:hover:bg-brown-800',
+    'bg-secondary text-secondary-foreground hover:bg-zinc-200 dark:hover:bg-zinc-800',
   outline:
-    'border border-border bg-transparent text-foreground hover:bg-muted hover:border-brown-400',
+    'border border-border/60 bg-transparent text-foreground hover:bg-muted hover:border-border',
   ghost:
     'bg-transparent text-foreground hover:bg-muted',
   destructive:
-    'bg-destructive text-destructive-foreground hover:bg-orange-700',
+    'bg-destructive text-destructive-foreground hover:bg-red-600',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -39,8 +39,8 @@ export function Button({
     <button
       type={type}
       className={cn(
-        'inline-flex items-center justify-center font-medium tracking-wide transition-colors duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        'inline-flex items-center justify-center font-medium transition-all duration-200',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         'disabled:pointer-events-none disabled:opacity-50',
         'cursor-pointer',
         variantStyles[variant],
