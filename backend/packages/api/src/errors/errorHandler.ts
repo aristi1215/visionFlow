@@ -11,7 +11,7 @@ const statusByErrorName: Record<string, number> = {
 };
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-  const statusCode = statusByErrorName[err.name] ?? 500;
+  let statusCode = statusByErrorName[err.name] ?? 500;
   let message = err.message || "Internal server error";
 
   if (err instanceof multer.MulterError) {

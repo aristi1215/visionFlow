@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import WorkflowService from "../services/Workflows.js";
 import { getAuth } from "@clerk/express";
-import type { workflowRequest, workflowUpdateRequest } from "@ondeckai/shared/types/Workflows";
+import type { WorkflowRequest, WorkflowUpdateRequest } from "../types/WorkflowRequests.js";
 
 
 
 
 class WorkflowController {
 
-    static async createWorkflow(req: workflowRequest, res: Response){
+    static async createWorkflow(req: WorkflowRequest, res: Response){
 
         const {name, description} = req.body; 
         const {userId} = getAuth(req);
@@ -21,7 +21,7 @@ class WorkflowController {
         return res.status(201).json({status: 'success', data:{ workflow}});
     }
 
-    static async updateWorkflow(req: workflowUpdateRequest, res: Response){
+    static async updateWorkflow(req: WorkflowUpdateRequest, res: Response){
 
         const  {name, description} = req.body;
         const {workflowId} = req.params;
