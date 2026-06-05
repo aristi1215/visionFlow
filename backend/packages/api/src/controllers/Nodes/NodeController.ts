@@ -6,8 +6,8 @@ import WorkflowNode from "../../services/WorkflowNode.js";
 class NodeController {
 
     static async createNode(req: NodeRequest, res: Response){
-        const {type, workflow_id, position_x, position_y} = req.body;
-        const node = await WorkflowNode.createWorkflowNode({type, workflow_id, position_x, position_y});
+        const {type, workflow_id, position_x, position_y, config} = req.body;
+        const node = await WorkflowNode.createWorkflowNode({type, workflow_id, position_x, position_y, config});
         return res.status(201).json({status: 'success', data: node});
     };
 
@@ -21,8 +21,8 @@ class NodeController {
     static async updateNode(req: NodeRequest, res: Response){
         const {id} = req.params;
         const formattedId = Array.isArray(id) ? id[0] : id;
-        const {position_x, position_y} = req.body;
-        const node = await WorkflowNode.updateWorkflowNode(formattedId, {position_x, position_y});
+        const {position_x, position_y, config} = req.body;
+        const node = await WorkflowNode.updateWorkflowNode(formattedId, {position_x, position_y, config});
         return res.status(200).json({status: 'success', data: node});
     };
 

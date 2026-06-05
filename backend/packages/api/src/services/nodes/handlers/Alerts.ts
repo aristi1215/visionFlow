@@ -3,23 +3,38 @@ import { NodeTypes } from "@ondeckai/shared/types/Nodes";
 import { ValidationError, DatabaseError } from "../../../errors/errors.js";
 import { getOrCreateVideoCache } from "../../../integrations/geminiVideoCache.js";
 import { gemini } from "../../../integrations/gemini.js";
+import type { NodeRunInput, WorkflowRunContext } from "../../../types/WorkflowNodes.js";
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
-
-//!TODO: Implement the alert sent.
 class AlertNode {
     static readonly type: NodeTypes = "alert_node";
-    static async execute(videoUrl: string, executionNodeId: number, startedAt: string, videoId: number, channel: "slack" | "gmail", alertRules: string): Promise<{ messageSent: string }> {
-        /**
-         * 
-         * This method represent one of the functionalities of the workflow.
-         * Is does:
-         * 1. Detects objects in the video with the Gemini API.
-         * 2. Returns the objects to the next node.
-         */
 
+    static async run(ctx: WorkflowRunContext, input: NodeRunInput) {
+        const channel = (input.config.channel as "slack" | "gmail") ?? "slack";
+        const alertRules =
+            (input.config.alertRules as string) ||
+            (input.config["Alert rules"] as string) ||
+            "";
 
+        return AlertNode.execute(
+            ctx.videoUrl,
+            input.executionNodeId,
+            input.startedAt,
+            ctx.videoId,
+            channel,
+            alertRules
+        );
+    }
+
+    static async execute(
+        videoUrl: string,
+        executionNodeId: number,
+        startedAt: string,
+        videoId: number,
+        channel: "slack" | "gmail",
+        alertRules: string
+    ): Promise<{ messageSent: string; channel: "slack" | "gmail" }> {
         const cachedContent = await getOrCreateVideoCache(videoId, videoUrl);
 
         const response = await gemini.models.generateContent({
@@ -31,13 +46,12 @@ class AlertNode {
             },
         });
 
-
         const responseText = response.text;
         const completedAt = new Date().toISOString();
 
         if (!responseText) throw new ValidationError("No response provided by the AI model");
 
-        const { error } = await supabase.from('alerts').insert({
+        const { error } = await supabase.from("alerts").insert({
             channel: channel,
             message: responseText,
             sent_status: "completed",
@@ -48,9 +62,8 @@ class AlertNode {
 
         if (error) throw new DatabaseError(error.message);
 
-        return { messageSent: responseText };
+        return { messageSent: responseText, channel };
     }
-
-
 }
-export default AlertNode; 
+
+export default AlertNode;

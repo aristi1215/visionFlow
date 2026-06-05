@@ -44,6 +44,18 @@
       "types": "./dist/types/WorkflowExecution.d.ts",
       "import": "./dist/types/WorkflowExecution.js"
     },
+    "./types/WorkflowExecutionSummary": {
+      "types": "./dist/types/WorkflowExecutionSummary.d.ts",
+      "import": "./dist/types/WorkflowExecutionSummary.js"
+    },
+    "./types/ExecutionDetail": {
+      "types": "./dist/types/ExecutionDetail.d.ts",
+      "import": "./dist/types/ExecutionDetail.js"
+    },
+    "./types/VideoApi": {
+      "types": "./dist/types/VideoApi.d.ts",
+      "import": "./dist/types/VideoApi.js"
+    },
     "./types/WorkFlowEdges": {
       "types": "./dist/types/WorkFlowEdges.d.ts",
       "import": "./dist/types/WorkFlowEdges.js"

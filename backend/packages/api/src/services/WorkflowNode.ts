@@ -8,8 +8,14 @@ import type { NodeCreate, NodeUpdate } from "@ondeckai/shared/types/Nodes";
 class WorkflowNode {
 
     static async createWorkflowNode(node: NodeCreate){
-        const {type, workflow_id, position_x, position_y} = node;
-        const {data, error} = await supabase.from('workflow_nodes').insert({type, workflow_id, position_x, position_y}).select();
+        const {type, workflow_id, position_x, position_y, config} = node;
+        const {data, error} = await supabase.from('workflow_nodes').insert({
+            type,
+            workflow_id,
+            position_x,
+            position_y,
+            config: config ?? {},
+        }).select();
         if(error) throw new DatabaseError(error.message);
         return data; 
     };
@@ -25,9 +31,15 @@ class WorkflowNode {
 
     static async updateWorkflowNode(nodeId: string, node: NodeUpdate){
         const nodeIdNumber = parseInt(nodeId);
-        const {position_x, position_y} = node;
-        if(!position_x && !position_y) throw new ValidationError("Position X or Y are required");
-        const {data, error} = await supabase.from('workflow_nodes').update({position_x, position_y}).eq('id', nodeIdNumber).select();
+        const {position_x, position_y, config} = node;
+        if (position_x === undefined && position_y === undefined && config === undefined) {
+            throw new ValidationError("At least one of position_x, position_y, or config is required");
+        }
+        const {data, error} = await supabase.from('workflow_nodes').update({
+            ...(position_x !== undefined && { position_x }),
+            ...(position_y !== undefined && { position_y }),
+            ...(config !== undefined && { config }),
+        }).eq('id', nodeIdNumber).select();
         if(error) throw new DatabaseError(error.message);
         if(!data || data.length === 0) throw new NotFoundError("Node not found");
         return data;

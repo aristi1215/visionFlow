@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import './editor.css'
-import { ArrowLeft, Menu, PanelRight, Play, Save, X } from 'lucide-react'
+import { ArrowLeft, Loader2, Menu, PanelRight, Play, Save, X } from 'lucide-react'
 import { Alert, Button, Input } from '@/components/ui'
 import { useToast } from '@/contexts/toastContext'
 import { useWorkflow } from '@/hooks/useWorkflows'
@@ -27,6 +27,16 @@ import { nodeKeys } from '@/lib/api/nodes'
 import { edgeKeys } from '@/lib/api/edges'
 import { workflowKeys } from '@/lib/api/workflows'
 import type { NodeTypes } from '@ondeckai/shared/types/Nodes'
+import { useExecuteWorkflow } from '@/hooks/useExecuteWorkflow'
+import { useExecution } from '@/hooks/useExecutions'
+import { RunWorkflowDialog } from '@/features/execution/RunWorkflowDialog'
+import { ExecutionResultsPanel } from '@/features/execution/ExecutionResultsPanel'
+import {
+  animateExecutionProgress,
+  applyExecutionSummaryToNodes,
+  executionDetailToSummary,
+  resetNodeExecutionStatus,
+} from '@/features/execution/executionUtils'
 import { useEditorStore } from './editorStore'
 import { NodePalette, NODE_DRAG_TYPE } from './NodePalette'
 import { NodeConfigPanel } from './NodeConfigPanel'
@@ -51,9 +61,10 @@ function snapValue(value: number, snap: boolean) {
 
 type WorkflowEditorProps = {
   workflowId: number
+  initialExecutionId?: number
 }
 
-export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
+export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEditorProps) {
   const reactFlowRef = useRef<ReactFlowInstance | null>(null)
   const canvasRef = useRef<HTMLDivElement | null>(null)
   const hydratedWorkflowRef = useRef<number | null>(null)
@@ -83,14 +94,25 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     refetch: refetchEdges,
   } = useWorkflowEdges(workflowId)
 
+  const executeWorkflowMutation = useExecuteWorkflow(workflowId)
+  const { data: initialExecution } = useExecution(initialExecutionId ?? 0)
+
   const {
     selectedNodeId,
     configPanelOpen,
     paletteOpen,
+    resultsPanelOpen,
+    runDialogOpen,
     snapToGrid,
+    executionPhase,
+    lastExecution,
     setSelectedNodeId,
     setConfigPanelOpen,
     setPaletteOpen,
+    setResultsPanelOpen,
+    setRunDialogOpen,
+    setExecutionPhase,
+    setLastExecution,
     toggleSnapToGrid,
   } = useEditorStore()
 
@@ -114,7 +136,19 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     setBaseline(null)
     setNodes([])
     setEdges([])
-  }, [workflowId, setNodes, setEdges])
+    setLastExecution(null)
+    setResultsPanelOpen(false)
+    setExecutionPhase('idle')
+    setRunDialogOpen(false)
+  }, [
+    workflowId,
+    setNodes,
+    setEdges,
+    setLastExecution,
+    setResultsPanelOpen,
+    setExecutionPhase,
+    setRunDialogOpen,
+  ])
 
   useEffect(() => {
     if (isLoading || !workflow || loadError) return
@@ -157,11 +191,33 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [isDirty])
 
+  const selectedNode = useMemo(
+    () => nodes.find((item) => item.id === selectedNodeId) ?? null,
+    [selectedNodeId, nodes],
+  )
+
   const selectedNodeType = useMemo(() => {
-    if (!selectedNodeId) return null
-    const node = nodes.find((item) => item.id === selectedNodeId)
-    return (node?.data as WorkflowNodeData | undefined)?.nodeType ?? null
-  }, [selectedNodeId, nodes])
+    return (selectedNode?.data as WorkflowNodeData | undefined)?.nodeType ?? null
+  }, [selectedNode])
+
+  const selectedNodeConfig = useMemo(() => {
+    return (selectedNode?.data as WorkflowNodeData | undefined)?.config ?? {}
+  }, [selectedNode])
+
+  useEffect(() => {
+    if (!initialExecution || !initialExecutionId || !baseline) return
+    const summary = executionDetailToSummary(initialExecution)
+    setLastExecution(summary)
+    setResultsPanelOpen(true)
+    setNodes((current) => applyExecutionSummaryToNodes(current, summary))
+  }, [
+    baseline,
+    initialExecution,
+    initialExecutionId,
+    setLastExecution,
+    setResultsPanelOpen,
+    setNodes,
+  ])
 
   const existingSourceEdges = useMemo(
     () => new Set(edges.map((edge) => edge.source)),
@@ -343,6 +399,61 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     void refetchEdges()
   }, [refetchWorkflow, refetchNodes, refetchEdges])
 
+  const handleConfigChange = useCallback(
+    (config: Record<string, unknown>) => {
+      if (!selectedNodeId) return
+      setNodes((current) =>
+        current.map((node) => {
+          if (node.id !== selectedNodeId) return node
+          const nodeData = node.data as WorkflowNodeData
+          return { ...node, data: { ...nodeData, config } }
+        }),
+      )
+    },
+    [selectedNodeId, setNodes],
+  )
+
+  const handleRunWorkflow = useCallback(
+    async (videoId: number) => {
+      setExecutionPhase('running')
+      setNodes((current) => resetNodeExecutionStatus(current))
+      setResultsPanelOpen(false)
+
+      try {
+        const summary = await executeWorkflowMutation.mutateAsync({ videoId })
+        setLastExecution(summary)
+        setExecutionPhase('success')
+        setResultsPanelOpen(true)
+        success('Workflow completed successfully.')
+        await animateExecutionProgress(
+          nodes,
+          summary.executionOrder,
+          setNodes,
+          summary.skippedDanglingNodes,
+        )
+        setNodes((current) => applyExecutionSummaryToNodes(current, summary))
+      } catch (error) {
+        setExecutionPhase('error')
+        showError(getFriendlyErrorMessage(error, 'Workflow run failed.'))
+        throw error
+      } finally {
+        if (useEditorStore.getState().executionPhase === 'running') {
+          setExecutionPhase('idle')
+        }
+      }
+    },
+    [
+      executeWorkflowMutation,
+      nodes,
+      setExecutionPhase,
+      setLastExecution,
+      setNodes,
+      setResultsPanelOpen,
+      showError,
+      success,
+    ],
+  )
+
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -438,8 +549,15 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
             <Save className="h-4 w-4" />
             {isSaving ? 'Saving…' : 'Save'}
           </Button>
-          <Button disabled title="Execution API not available yet">
-            <Play className="h-4 w-4" />
+          <Button
+            onClick={() => setRunDialogOpen(true)}
+            disabled={isSaving || isLoading || executionPhase === 'running'}
+          >
+            {executionPhase === 'running' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
             Run
           </Button>
         </div>
@@ -506,10 +624,20 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
           </ReactFlow>
         </div>
 
-        {configPanelOpen && (
+        {resultsPanelOpen && lastExecution && (
+          <ExecutionResultsPanel
+            summary={lastExecution}
+            onClose={() => setResultsPanelOpen(false)}
+            className="hidden h-full min-h-0 lg:flex"
+          />
+        )}
+
+        {configPanelOpen && !resultsPanelOpen && (
           <>
             <NodeConfigPanel
               nodeType={selectedNodeType}
+              config={selectedNodeConfig}
+              onConfigChange={handleConfigChange}
               className="hidden h-full min-h-0 lg:flex"
             />
             <div className="absolute inset-y-0 right-0 z-20 flex lg:hidden">
@@ -523,6 +651,8 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
               </button>
               <NodeConfigPanel
                 nodeType={selectedNodeType}
+                config={selectedNodeConfig}
+                onConfigChange={handleConfigChange}
                 className="h-full max-h-full min-h-0 shadow-lg"
               />
             </div>
@@ -539,6 +669,33 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
         nodeCount={nodes.length}
         edgeCount={edges.filter((edge) => edge.target).length}
       />
+
+      <RunWorkflowDialog
+        open={runDialogOpen}
+        onClose={() => setRunDialogOpen(false)}
+        baseline={baseline}
+        nodes={nodes}
+        edges={edges}
+        isDirty={isDirty}
+        isSaving={isSaving}
+        isRunning={executionPhase === 'running' || executeWorkflowMutation.isPending}
+        onSave={handleSave}
+        onRun={handleRunWorkflow}
+      />
+
+      {executionPhase === 'running' && (
+        <div className="pointer-events-none fixed inset-0 z-40 flex items-end justify-center bg-black/20 p-6">
+          <div className="pointer-events-auto flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-lg">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Running workflow</p>
+              <p className="text-xs text-muted-foreground">
+                AI analysis can take several minutes. Please keep this tab open.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

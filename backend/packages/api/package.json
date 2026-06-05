@@ -8,6 +8,7 @@
     "dev": "tsx watch src/index.ts",
     "prebuild": "npm run build -w @ondeckai/shared",
     "build": "tsc",
+    "test": "tsx --test src/services/workflow/*.test.ts",
     "start": "node dist/index.js"
   },
   "dependencies": {

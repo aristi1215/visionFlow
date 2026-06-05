@@ -12,6 +12,7 @@ import {
 } from '@/components/ui'
 import { useSetDashboardHeader } from '@/contexts/dashboardHeaderContext'
 import { useWorkflows } from '@/hooks/useWorkflows'
+import { useRecentExecutions } from '@/hooks/useExecutions'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/dashboard/')({
@@ -23,6 +24,7 @@ function DashboardOverview() {
 
   const { user } = useUser()
   const { data: workflows = [], isPending } = useWorkflows()
+  const { data: executions = [], isPending: executionsPending } = useRecentExecutions()
 
   const sorted = [...workflows].sort(
     (a, b) =>
@@ -143,6 +145,7 @@ function DashboardOverview() {
                       <Link
                         to="/dashboard/workflows/$workflowId"
                         params={{ workflowId: String(workflow.id) }}
+                        search={{}}
                         className="text-primary hover:underline"
                       >
                         Open
@@ -157,24 +160,81 @@ function DashboardOverview() {
       </section>
 
       <section>
-        <Card className="border-dashed">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <History className="h-5 w-5 text-muted-foreground" />
-              <CardTitle className="text-lg">Execution history</CardTitle>
-            </div>
-            <CardDescription>
-              Execution history will appear here once runs are supported by the
-              API.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              When workflow execution is enabled, you will see past runs,
-              status, and results here.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="mb-4 flex items-center gap-2">
+          <History className="h-5 w-5 text-muted-foreground" />
+          <h3 className="font-display text-xl text-foreground">Execution history</h3>
+        </div>
+
+        {executionsPending ? (
+          <div className="h-32 animate-pulse rounded-xl border border-border bg-muted/30" />
+        ) : executions.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="py-8 text-center">
+              <p className="text-sm text-muted-foreground">
+                No workflow runs yet. Open a workflow and click Run to execute it.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-border">
+            <table className="w-full text-sm">
+              <thead className="border-b border-border bg-muted/40">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    Workflow
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    Started
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    Video
+                  </th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody>
+                {executions.slice(0, 10).map((execution) => (
+                  <tr
+                    key={execution.id}
+                    className="border-b border-border last:border-0"
+                  >
+                    <td className="px-4 py-3 font-medium text-foreground">
+                      {execution.workflow_name ?? `Workflow #${execution.workflow_id}`}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge
+                        variant={
+                          execution.status === 'completed' ? 'default' : 'orange'
+                        }
+                      >
+                        {execution.status}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {new Date(execution.started_at).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      #{execution.video_id}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        to="/dashboard/workflows/$workflowId"
+                        params={{ workflowId: String(execution.workflow_id) }}
+                        search={{ executionId: execution.id }}
+                        className="text-primary hover:underline"
+                      >
+                        View results
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   )

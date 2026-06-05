@@ -311,24 +311,27 @@ export type Database = {
       }
       workflow_execution: {
         Row: {
-          completed_at: string
+          completed_at: string | null
           id: number
+          output_report: string | null
           started_at: string
           status: Database["public"]["Enums"]["execution_alert_status"]
           video_id: number
           workflow_id: number
         }
         Insert: {
-          completed_at: string
+          completed_at?: string | null
           id?: number
+          output_report?: string | null
           started_at: string
           status: Database["public"]["Enums"]["execution_alert_status"]
           video_id: number
           workflow_id: number
         }
         Update: {
-          completed_at?: string
+          completed_at?: string | null
           id?: number
+          output_report?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["execution_alert_status"]
           video_id?: number
@@ -353,6 +356,7 @@ export type Database = {
       }
       workflow_nodes: {
         Row: {
+          config: Json
           id: number
           position_x: number
           position_y: number
@@ -360,6 +364,7 @@ export type Database = {
           workflow_id: number
         }
         Insert: {
+          config?: Json
           id?: number
           position_x: number
           position_y: number
@@ -367,6 +372,7 @@ export type Database = {
           workflow_id: number
         }
         Update: {
+          config?: Json
           id?: number
           position_x?: number
           position_y?: number

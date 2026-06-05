@@ -1,42 +1,69 @@
+import { NodeTypes } from "@ondeckai/shared/types/Nodes";
+import { supabase } from "../../../integrations/supabase.js";
+import { DatabaseError } from "../../../errors/errors.js";
+import { gemini } from "../../../integrations/gemini.js";
+import { getOrCreateVideoCache } from "../../../integrations/geminiVideoCache.js";
+import type { NodeRunInput, WorkflowRunContext } from "../../../types/WorkflowNodes.js";
+import {
+    aggregateUpstreamResults,
+    type OutputResults,
+} from "../../workflow/aggregateResults.js";
 
-
-type OutputResults = {
-    alertResults?: {
-        channel: "slack" | "gmail";
-        message: string;
-    };
-    timelineResults?: {
-        events: {
-            event_type: string;
-        };
-    };
-    aiAnalysisResults?: {
-        analysis: string;
-    };
-    objectDetectionResults?: {
-        detections: {
-            object_type: string;
-        }[];
-    };
-    videoAnalysisResults?: {
-        analysis: string;
-    };
-}
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 class OutputResultsNode {
-    static async execute(executionNodeId: string, results: OutputResults, outputFormat: "json" | "csv" | "pdf"){
+    static readonly type: NodeTypes = "save_results_node";
 
-        /*
-            This method represent one of the functionalities of the workflow.
-            Is does:
-            1. It outputs the results of the complete workflow in a structured format
-            2. Returns the results to the client.
-            It can be in the format of:
-            - JSON
-            - CSV
-            - PDD
-        */
+    static async run(ctx: WorkflowRunContext, input: NodeRunInput) {
+        const results = aggregateUpstreamResults(input.inputs);
+        return OutputResultsNode.execute(ctx.executionId, results, ctx.video);
+    }
 
+    static async execute(
+        executionWorkflowId: number,
+        results: OutputResults,
+        videoInformation: WorkflowRunContext["video"]
+    ) {
+        const structuredTextReportPrompt = `
+        # Video Analysis Report
+        ## Summary
+        - Video Url: ${videoInformation.video_url}
+        - Video Duration: ${videoInformation.duration}
+
+        # All the information received by the node workflows:
+            Create a structured section for each node workflow.
+            These are the workflows results: ${JSON.stringify(results)}
+        `;
+
+        const cachedContent = await getOrCreateVideoCache(
+            videoInformation.id,
+            videoInformation.video_url
+        );
+
+        const response = await gemini.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: structuredTextReportPrompt,
+            config: {
+                cachedContent,
+                responseMimeType: "text/plain",
+            },
+        });
+
+        const structuredTextReport = response.text;
+        const completedAt = new Date().toISOString();
+
+        const { error } = await supabase
+            .from("workflow_execution")
+            .update({
+                output_report: structuredTextReport,
+                completed_at: completedAt,
+                status: "completed",
+            })
+            .eq("id", executionWorkflowId);
+
+        if (error) throw new DatabaseError(error.message);
+
+        return { output_report: structuredTextReport };
     }
 }
 

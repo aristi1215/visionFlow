@@ -4,29 +4,28 @@ import { getOrCreateVideoCache } from "../../../integrations/geminiVideoCache.js
 import { NodeTypes } from "@ondeckai/shared/types/Nodes";
 import { gemini } from "../../../integrations/gemini.js";
 import { timelineEventsSchema } from "../../../schemas/TimelineEventsSchema.js";
-
+import type { NodeRunInput, WorkflowRunContext } from "../../../types/WorkflowNodes.js";
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 class TimelineNode {
-
-    /*
-        This method represent one of the functionalities of the workflow.
-        Is does:
-        1. Generates a structured timeline of the video.
-        2. Returns the timeline to the next node.
-    */
-
     static readonly type: NodeTypes = "timeline_events_generator";
-    static async execute(videoUrl: string, executionNodeId: number, startedAt: string, videoId: number): Promise<{ output_json: string }> {
-        /**
-         * 
-         * This method represent one of the functionalities of the workflow.
-         * Is does:
-         * 1. Generates a structured timeline of the video.
-         * 2. Returns the timeline to the next node.
-         */
 
+    static async run(ctx: WorkflowRunContext, input: NodeRunInput) {
+        return TimelineNode.execute(
+            ctx.videoUrl,
+            input.executionNodeId,
+            input.startedAt,
+            ctx.videoId
+        );
+    }
+
+    static async execute(
+        videoUrl: string,
+        executionNodeId: number,
+        startedAt: string,
+        videoId: number
+    ): Promise<{ output_json: string }> {
         const cachedContent = await getOrCreateVideoCache(videoId, videoUrl);
 
         const response = await gemini.models.generateContent({
@@ -50,13 +49,12 @@ Return ONLY valid JSON:
             },
         });
 
-
         const timeLineEvents = response.text;
         const completedAt = new Date().toISOString();
 
-        if (!timeLineEvents) throw new ValidationError("No detections found");
+        if (!timeLineEvents) throw new ValidationError("No timeline events found");
 
-        const { error } = await supabase.from('timeline_events').insert({
+        const { error } = await supabase.from("timeline_events").insert({
             execution_node: executionNodeId,
             started_at: startedAt,
             completed_at: completedAt,
@@ -67,8 +65,6 @@ Return ONLY valid JSON:
 
         return { output_json: timeLineEvents };
     }
-
-
 }
 
 export default TimelineNode;

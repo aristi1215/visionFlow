@@ -1,15 +1,25 @@
-import { useDropzone } from 'react-dropzone'
 import { NODE_BY_TYPE } from '@/features/workflows/nodeRegistry'
+import {
+  getConfigValue,
+  setConfigValue,
+} from '@/features/workflows/configKeys'
 import { NodeIcon } from '@/features/workflows/nodeIcons'
 import type { NodeTypes } from '@ondeckai/shared/types/Nodes'
 import { cn } from '@/lib/cn'
 
 type NodeConfigPanelProps = {
   nodeType: NodeTypes | null
+  config: Record<string, unknown>
+  onConfigChange: (config: Record<string, unknown>) => void
   className?: string
 }
 
-export function NodeConfigPanel({ nodeType, className }: NodeConfigPanelProps) {
+export function NodeConfigPanel({
+  nodeType,
+  config,
+  onConfigChange,
+  className,
+}: NodeConfigPanelProps) {
   if (!nodeType) {
     return (
       <aside
@@ -20,7 +30,7 @@ export function NodeConfigPanel({ nodeType, className }: NodeConfigPanelProps) {
       >
         <div className="flex flex-1 items-center justify-center p-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Select a node to view its configuration preview.
+            Select a node to configure it.
           </p>
         </div>
       </aside>
@@ -30,11 +40,9 @@ export function NodeConfigPanel({ nodeType, className }: NodeConfigPanelProps) {
   const definition = NODE_BY_TYPE[nodeType]
   const isUpload = nodeType === 'upload_video'
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    disabled: true,
-    noClick: true,
-    noKeyboard: true,
-  })
+  const handleFieldChange = (label: string, value: string) => {
+    onConfigChange(setConfigValue(config, label, value))
+  }
 
   return (
     <aside
@@ -52,7 +60,7 @@ export function NodeConfigPanel({ nodeType, className }: NodeConfigPanelProps) {
             <h3 className="text-sm font-medium text-foreground">
               {definition.label}
             </h3>
-            <p className="text-xs text-muted-foreground">Configuration preview</p>
+            <p className="text-xs text-muted-foreground">Node configuration</p>
           </div>
         </div>
       </div>
@@ -60,26 +68,11 @@ export function NodeConfigPanel({ nodeType, className }: NodeConfigPanelProps) {
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
         <p className="text-sm text-muted-foreground">{definition.description}</p>
 
-        <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-3">
-          <p className="text-xs text-muted-foreground">
-            Configuration saves when the API supports node settings.
-          </p>
-        </div>
-
         {isUpload && (
-          <div
-            {...getRootProps()}
-            className={cn(
-              'mt-4 cursor-not-allowed rounded-lg border border-dashed border-border p-6 text-center opacity-60',
-              isDragActive && 'border-primary',
-            )}
-          >
-            <input {...getInputProps()} />
-            <p className="text-sm font-medium text-foreground">
-              Drop video here
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Upload will be available when the video API is ready.
+          <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-3">
+            <p className="text-xs text-muted-foreground">
+              Video input is selected when you run the workflow. Use the Run
+              button to upload or pick an existing video.
             </p>
           </div>
         )}
@@ -92,26 +85,31 @@ export function NodeConfigPanel({ nodeType, className }: NodeConfigPanelProps) {
               </label>
               {field.type === 'textarea' ? (
                 <textarea
-                  disabled
+                  value={getConfigValue(config, field.label)}
+                  onChange={(e) => handleFieldChange(field.label, e.target.value)}
                   placeholder={field.placeholder}
                   rows={3}
-                  className="w-full cursor-not-allowed rounded-lg border border-input bg-muted/50 px-3 py-2 text-sm opacity-60"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                 />
               ) : field.type === 'select' ? (
                 <select
-                  disabled
-                  className="w-full cursor-not-allowed rounded-lg border border-input bg-muted/50 px-3 py-2 text-sm opacity-60"
+                  value={getConfigValue(config, field.label) || field.options?.[0]}
+                  onChange={(e) => handleFieldChange(field.label, e.target.value)}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                 >
                   {field.options?.map((opt) => (
-                    <option key={opt}>{opt}</option>
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
                   ))}
                 </select>
               ) : (
                 <input
-                  disabled
                   type={field.type ?? 'text'}
+                  value={getConfigValue(config, field.label)}
+                  onChange={(e) => handleFieldChange(field.label, e.target.value)}
                   placeholder={field.placeholder}
-                  className="w-full cursor-not-allowed rounded-lg border border-input bg-muted/50 px-3 py-2 text-sm opacity-60"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                 />
               )}
             </div>

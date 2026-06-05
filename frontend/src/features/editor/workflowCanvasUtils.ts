@@ -2,6 +2,7 @@ import type { Edge, Node } from '@xyflow/react'
 import type { WorkflowEdgeRow } from '@ondeckai/shared/types/WorkFlowEdges'
 import type { NodeRow, NodeTypes } from '@ondeckai/shared/types/Nodes'
 import { NODE_BY_TYPE } from '@/features/workflows/nodeRegistry'
+import { configsEqual } from '@/features/workflows/configKeys'
 import type { WorkflowNodeData } from './WorkflowNode'
 
 export const TEMP_NODE_PREFIX = 'temp:'
@@ -37,6 +38,13 @@ export type WorkflowBaseline = {
   edges: WorkflowEdgeRow[]
 }
 
+function normalizeConfig(config: NodeRow['config']): Record<string, unknown> {
+  if (config && typeof config === 'object' && !Array.isArray(config)) {
+    return config as Record<string, unknown>
+  }
+  return {}
+}
+
 export function toFlowNodes(apiNodes: NodeRow[]): Node[] {
   return apiNodes.map((node) => ({
     id: String(node.id),
@@ -45,6 +53,8 @@ export function toFlowNodes(apiNodes: NodeRow[]): Node[] {
     data: {
       label: NODE_BY_TYPE[node.type].label,
       nodeType: node.type,
+      config: normalizeConfig(node.config),
+      executionStatus: 'idle',
     } satisfies WorkflowNodeData,
   }))
 }
@@ -71,6 +81,8 @@ export function createFlowNode(
     data: {
       label: NODE_BY_TYPE[type].label,
       nodeType: type,
+      config: {},
+      executionStatus: 'idle',
     } satisfies WorkflowNodeData,
   }
 }
@@ -106,6 +118,12 @@ export function isWorkflowDirty(
       baselineNode.position_x !== node.position.x ||
       baselineNode.position_y !== node.position.y
     ) {
+      return true
+    }
+
+    const nodeData = node.data as WorkflowNodeData
+    const baselineConfig = normalizeConfig(baselineNode.config)
+    if (!configsEqual(baselineConfig, nodeData.config ?? {})) {
       return true
     }
   }
