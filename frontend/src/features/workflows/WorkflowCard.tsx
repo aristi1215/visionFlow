@@ -9,7 +9,8 @@ import {
   Button,
 } from '@/components/ui'
 import type { WorkflowRow } from '@ondeckai/shared/types/Workflows'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Network, Pencil, Trash2 } from 'lucide-react'
+import { cn } from '@/lib/cn'
 
 type WorkflowCardProps = {
   workflow: WorkflowRow
@@ -27,8 +28,16 @@ function formatDate(iso: string) {
 
 export function WorkflowCard({ workflow, onRename, onDelete }: WorkflowCardProps) {
   return (
-    <Card className="flex flex-col transition-shadow hover:shadow-md">
+    <Card
+      className={cn(
+        'group flex flex-col border-border/50 transition-all duration-200 hover:border-primary/30 hover-lift',
+      )}
+    >
+      <div className="h-1 rounded-t-xl bg-gradient-to-r from-primary/60 to-violet-500/40 opacity-0 transition-opacity group-hover:opacity-100" />
       <CardHeader>
+        <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Network className="h-4 w-4" />
+        </div>
         <CardTitle className="line-clamp-1">{workflow.name}</CardTitle>
         <CardDescription className="line-clamp-2">
           {workflow.description || 'No description'}
@@ -59,10 +68,11 @@ export function WorkflowCard({ workflow, onRename, onDelete }: WorkflowCardProps
           <Pencil className="h-4 w-4" />
         </Button>
         <Button
-          variant="destructive"
+          variant="ghost"
           size="sm"
           onClick={() => onDelete(workflow)}
           aria-label="Delete workflow"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

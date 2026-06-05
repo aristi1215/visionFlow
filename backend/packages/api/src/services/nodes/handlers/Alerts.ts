@@ -1,11 +1,8 @@
 import { supabase } from "../../../integrations/supabase.js";
 import { NodeTypes } from "@ondeckai/shared/types/Nodes";
 import { ValidationError, DatabaseError } from "../../../errors/errors.js";
-import { getOrCreateVideoCache } from "../../../integrations/geminiVideoCache.js";
-import { gemini } from "../../../integrations/gemini.js";
+import { generateContentWithVideo } from "../../../integrations/geminiVideoCache.js";
 import type { NodeRunInput, WorkflowRunContext } from "../../../types/WorkflowNodes.js";
-
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 class AlertNode {
     static readonly type: NodeTypes = "alert_node";
@@ -18,7 +15,7 @@ class AlertNode {
             "";
 
         return AlertNode.execute(
-            ctx.videoUrl,
+            ctx.video.video_url,
             input.executionNodeId,
             input.startedAt,
             ctx.videoId,
@@ -35,16 +32,12 @@ class AlertNode {
         channel: "slack" | "gmail",
         alertRules: string
     ): Promise<{ messageSent: string; channel: "slack" | "gmail" }> {
-        const cachedContent = await getOrCreateVideoCache(videoId, videoUrl);
-
-        const response = await gemini.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: `Based on the user provided rules: ${alertRules}, detect if the video contains any of the rules. If so, create a message to send to the user through ${channel}.`,
-            config: {
-                cachedContent,
-                responseMimeType: "application/json",
-            },
-        });
+        const response = await generateContentWithVideo(
+            videoId,
+            videoUrl,
+            `Based on the user provided rules: ${alertRules}, detect if the video contains any of the rules. If so, create a message to send to the user through ${channel}.`,
+            { responseMimeType: "application/json" },
+        );
 
         const responseText = response.text;
         const completedAt = new Date().toISOString();

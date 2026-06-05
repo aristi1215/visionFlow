@@ -46,8 +46,7 @@ class WorkflowEdges {
         const workflowIdNumber = parseInt(workflowId);
         const { data, error } = await supabase.from('workflow_edges').select('*').eq('workflow_id', workflowIdNumber);
         if (error) throw new DatabaseError(error.message);
-        if (!data || data.length === 0) throw new NotFoundError("Edges not found");
-        return data;
+        return data ?? [];
     }
 
 

@@ -9,7 +9,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Skeleton,
 } from '@/components/ui'
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHead,
+  DataTableHeader,
+  DataTableRow,
+  EmptyState,
+} from '@/components/layout'
 import { useSetDashboardHeader } from '@/contexts/dashboardHeaderContext'
 import { useWorkflows } from '@/hooks/useWorkflows'
 import { useRecentExecutions } from '@/hooks/useExecutions'
@@ -20,7 +30,7 @@ export const Route = createFileRoute('/dashboard/')({
 })
 
 function DashboardOverview() {
-  useSetDashboardHeader({ title: 'Dashboard', subtitle: 'Overview' })
+  useSetDashboardHeader({ title: 'Overview', subtitle: '' })
 
   const { user } = useUser()
   const { data: workflows = [], isPending } = useWorkflows()
@@ -37,9 +47,9 @@ function DashboardOverview() {
 
   return (
     <div className="space-y-8">
-      <section className="space-y-3">
-        <Badge variant="orange">Video analysis</Badge>
-        <h2 className="font-display text-3xl text-foreground">
+      <section className="space-y-3 animate-in">
+        <Badge>Video analysis</Badge>
+        <h2 className="text-3xl font-semibold tracking-tight text-foreground">
           Welcome back, {firstName}
         </h2>
         <p className="max-w-2xl text-muted-foreground">
@@ -48,11 +58,11 @@ function DashboardOverview() {
         </p>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-3 animate-in" style={{ animationDelay: '60ms' }}>
         <Card>
           <CardHeader>
             <CardDescription>Total workflows</CardDescription>
-            <CardTitle className="text-3xl">
+            <CardTitle className="text-4xl font-semibold tabular-nums">
               {isPending ? '—' : workflows.length}
             </CardTitle>
           </CardHeader>
@@ -82,11 +92,9 @@ function DashboardOverview() {
         </Card>
       </section>
 
-      <section>
+      <section className="animate-in" style={{ animationDelay: '120ms' }}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-display text-xl text-foreground">
-            Recent workflows
-          </h3>
+          <h3 className="text-lg font-semibold text-foreground">Recent workflows</h3>
           <Link
             to="/dashboard/workflows"
             className="text-sm text-primary hover:underline"
@@ -96,144 +104,111 @@ function DashboardOverview() {
         </div>
 
         {isPending ? (
-          <div className="h-32 animate-pulse rounded-xl border border-border bg-muted/30" />
+          <Skeleton className="h-32" />
         ) : sorted.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center py-10 text-center">
-              <Network className="mb-3 h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                No workflows yet. Create one to get started.
-              </p>
-              <Link to="/dashboard/workflows" className="mt-4">
+          <EmptyState
+            icon={Network}
+            title="No workflows yet"
+            description="Create one to get started with video analysis."
+            action={
+              <Link to="/dashboard/workflows">
                 <Button size="sm">Create workflow</Button>
               </Link>
-            </CardContent>
-          </Card>
+            }
+          />
         ) : (
-          <div className="overflow-hidden rounded-xl border border-border">
-            <table className="w-full text-sm">
-              <thead className="border-b border-border bg-muted/40">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Name
-                  </th>
-                  <th className="hidden px-4 py-3 text-left font-medium text-muted-foreground sm:table-cell">
-                    Description
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Created
-                  </th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {sorted.slice(0, 5).map((workflow) => (
-                  <tr
-                    key={workflow.id}
-                    className="border-b border-border last:border-0"
-                  >
-                    <td className="px-4 py-3 font-medium text-foreground">
-                      {workflow.name}
-                    </td>
-                    <td className="hidden max-w-xs truncate px-4 py-3 text-muted-foreground sm:table-cell">
-                      {workflow.description || '—'}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {new Date(workflow.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        to="/dashboard/workflows/$workflowId"
-                        params={{ workflowId: String(workflow.id) }}
-                        search={{}}
-                        className="text-primary hover:underline"
-                      >
-                        Open
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable>
+            <DataTableHeader>
+              <tr>
+                <DataTableHead>Name</DataTableHead>
+                <DataTableHead className="hidden sm:table-cell">Description</DataTableHead>
+                <DataTableHead>Created</DataTableHead>
+                <DataTableHead />
+              </tr>
+            </DataTableHeader>
+            <DataTableBody>
+              {sorted.slice(0, 5).map((workflow) => (
+                <DataTableRow key={workflow.id}>
+                  <DataTableCell className="font-medium">{workflow.name}</DataTableCell>
+                  <DataTableCell className="hidden max-w-xs truncate text-muted-foreground sm:table-cell">
+                    {workflow.description || '—'}
+                  </DataTableCell>
+                  <DataTableCell className="text-muted-foreground">
+                    {new Date(workflow.created_at).toLocaleDateString()}
+                  </DataTableCell>
+                  <DataTableCell className="text-right">
+                    <Link
+                      to="/dashboard/workflows/$workflowId"
+                      params={{ workflowId: String(workflow.id) }}
+                      search={{}}
+                      className="text-primary hover:underline"
+                    >
+                      Open
+                    </Link>
+                  </DataTableCell>
+                </DataTableRow>
+              ))}
+            </DataTableBody>
+          </DataTable>
         )}
       </section>
 
-      <section>
+      <section className="animate-in" style={{ animationDelay: '180ms' }}>
         <div className="mb-4 flex items-center gap-2">
           <History className="h-5 w-5 text-muted-foreground" />
-          <h3 className="font-display text-xl text-foreground">Execution history</h3>
+          <h3 className="text-lg font-semibold text-foreground">Execution history</h3>
         </div>
 
         {executionsPending ? (
-          <div className="h-32 animate-pulse rounded-xl border border-border bg-muted/30" />
+          <Skeleton className="h-32" />
         ) : executions.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="py-8 text-center">
-              <p className="text-sm text-muted-foreground">
-                No workflow runs yet. Open a workflow and click Run to execute it.
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={History}
+            title="No runs yet"
+            description="Open a workflow and click Run to execute it."
+          />
         ) : (
-          <div className="overflow-hidden rounded-xl border border-border">
-            <table className="w-full text-sm">
-              <thead className="border-b border-border bg-muted/40">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Workflow
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Started
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Video
-                  </th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {executions.slice(0, 10).map((execution) => (
-                  <tr
-                    key={execution.id}
-                    className="border-b border-border last:border-0"
-                  >
-                    <td className="px-4 py-3 font-medium text-foreground">
-                      {execution.workflow_name ?? `Workflow #${execution.workflow_id}`}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        variant={
-                          execution.status === 'completed' ? 'default' : 'orange'
-                        }
-                      >
-                        {execution.status}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {new Date(execution.started_at).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      #{execution.video_id}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        to="/dashboard/workflows/$workflowId"
-                        params={{ workflowId: String(execution.workflow_id) }}
-                        search={{ executionId: execution.id }}
-                        className="text-primary hover:underline"
-                      >
-                        View results
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable>
+            <DataTableHeader>
+              <tr>
+                <DataTableHead>Workflow</DataTableHead>
+                <DataTableHead>Status</DataTableHead>
+                <DataTableHead>Started</DataTableHead>
+                <DataTableHead>Video</DataTableHead>
+                <DataTableHead />
+              </tr>
+            </DataTableHeader>
+            <DataTableBody>
+              {executions.slice(0, 10).map((execution) => (
+                <DataTableRow key={execution.id}>
+                  <DataTableCell className="font-medium">
+                    {execution.workflow_name ?? `Workflow #${execution.workflow_id}`}
+                  </DataTableCell>
+                  <DataTableCell>
+                    <Badge variant={execution.status === 'completed' ? 'default' : 'muted'}>
+                      {execution.status}
+                    </Badge>
+                  </DataTableCell>
+                  <DataTableCell className="text-muted-foreground">
+                    {new Date(execution.started_at).toLocaleString()}
+                  </DataTableCell>
+                  <DataTableCell className="text-muted-foreground">
+                    #{execution.video_id}
+                  </DataTableCell>
+                  <DataTableCell className="text-right">
+                    <Link
+                      to="/dashboard/workflows/$workflowId"
+                      params={{ workflowId: String(execution.workflow_id) }}
+                      search={{ executionId: execution.id }}
+                      className="text-primary hover:underline"
+                    >
+                      View results
+                    </Link>
+                  </DataTableCell>
+                </DataTableRow>
+              ))}
+            </DataTableBody>
+          </DataTable>
         )}
       </section>
     </div>

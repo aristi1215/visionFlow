@@ -22,19 +22,17 @@ export function DashboardAside({ className }: DashboardAsideProps) {
     <aside
       className={cn(
         'flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 ease-in-out',
-        isOpen ? 'w-64' : 'w-0 overflow-hidden border-r-0',
+        isOpen ? 'w-60' : 'w-0 overflow-hidden border-r-0',
         className,
       )}
     >
-      <div className="flex w-64 shrink-0 flex-col">
-        <div className="flex items-start justify-between border-b border-sidebar-border px-6 py-5">
+      <div className="flex w-60 shrink-0 flex-col">
+        <div className="flex items-center justify-between px-5 py-4">
           <div>
-            <h3 className="text-xl font-display uppercase tracking-wider text-sidebar-foreground">
-              Vision Flow 
+            <h3 className="text-sm font-semibold tracking-tight text-sidebar-foreground">
+              Vision Flow
             </h3>
-            <p className="mt-0.5 text-xs text-sidebar-foreground/60">
-              Video workflow AI
-            </p>
+            <p className="text-xs text-muted-foreground">Video workflow AI</p>
           </div>
           <Button
             variant="ghost"
@@ -42,23 +40,23 @@ export function DashboardAside({ className }: DashboardAsideProps) {
             onClick={toggle}
             aria-label="Hide sidebar"
             title="Hide sidebar"
-            className="shrink-0 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="h-8 w-8 shrink-0 px-0 text-muted-foreground hover:text-foreground"
           >
             <PanelLeftClose className="h-4 w-4" />
           </Button>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 p-4">
+        <nav className="flex flex-1 flex-col gap-0.5 px-3 py-2">
           {navItems.map((item) => {
             const Icon = item.icon
             return (
               <Link
                 key={item.label}
                 to={item.to}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-foreground"
                 activeProps={{
                   className:
-                    'flex items-center gap-3 rounded-lg bg-sidebar-accent px-3 py-2.5 text-sm font-medium text-orange-400',
+                    'flex items-center gap-2.5 rounded-lg bg-primary/10 px-3 py-2 text-sm font-medium text-primary',
                 }}
               >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -68,15 +66,10 @@ export function DashboardAside({ className }: DashboardAsideProps) {
           })}
         </nav>
 
-        <div className="border-t border-sidebar-border p-4">
-          <div className="rounded-lg bg-sidebar-accent p-3">
-            <p className="text-xs uppercase tracking-wider text-brown-400">
-              Workflows
-            </p>
-            <p className="mt-1 text-sm text-sidebar-foreground/90">
-              Build video analysis pipelines visually
-            </p>
-          </div>
+        <div className="border-t border-sidebar-border px-5 py-4">
+          <p className="text-xs text-muted-foreground">
+            Build video analysis pipelines visually
+          </p>
         </div>
       </div>
     </aside>

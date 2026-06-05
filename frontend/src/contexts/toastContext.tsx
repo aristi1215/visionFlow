@@ -29,9 +29,9 @@ const ToastContext = createContext<ToastContextValue | null>(null)
 const TOAST_DURATION_MS = 5000
 
 const variantStyles: Record<ToastVariant, string> = {
-  success: 'border-emerald-500/30 bg-card text-foreground',
-  error: 'border-destructive/30 bg-card text-foreground',
-  info: 'border-border bg-card text-foreground',
+  success: 'border-l-primary bg-card/95 backdrop-blur-xl',
+  error: 'border-l-destructive bg-card/95 backdrop-blur-xl',
+  info: 'border-l-border bg-card/95 backdrop-blur-xl',
 }
 
 const variantIcons: Record<ToastVariant, typeof CheckCircle2> = {
@@ -87,14 +87,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <div
               key={item.id}
               className={cn(
-                'pointer-events-auto flex items-start gap-3 rounded-xl border p-4 shadow-lg',
+                'pointer-events-auto flex items-start gap-3 rounded-xl border border-border/50 border-l-4 p-4 shadow-lg animate-in',
                 variantStyles[item.variant],
               )}
             >
               <Icon
                 className={cn(
                   'mt-0.5 h-4 w-4 shrink-0',
-                  item.variant === 'success' && 'text-emerald-600',
+                  item.variant === 'success' && 'text-primary',
                   item.variant === 'error' && 'text-destructive',
                   item.variant === 'info' && 'text-muted-foreground',
                 )}

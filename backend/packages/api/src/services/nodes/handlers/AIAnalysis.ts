@@ -1,11 +1,8 @@
 import { supabase } from "../../../integrations/supabase.js";
 import { NodeTypes } from "@ondeckai/shared/types/Nodes";
 import { ValidationError, DatabaseError } from "../../../errors/errors.js";
-import { getOrCreateVideoCache } from "../../../integrations/geminiVideoCache.js";
-import { gemini } from "../../../integrations/gemini.js";
+import { generateContentWithVideo } from "../../../integrations/geminiVideoCache.js";
 import type { NodeRunInput, WorkflowRunContext } from "../../../types/WorkflowNodes.js";
-
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 class AIAnalysisNode {
     static readonly type: NodeTypes = "ai_description_node";
@@ -17,7 +14,7 @@ class AIAnalysisNode {
             "Describe what happens in this video.";
 
         return AIAnalysisNode.execute(
-            ctx.videoUrl,
+            ctx.video.video_url,
             input.executionNodeId,
             input.startedAt,
             ctx.videoId,
@@ -32,15 +29,8 @@ class AIAnalysisNode {
         videoId: number,
         prompt: string
     ): Promise<{ output_response: string }> {
-        const cachedContent = await getOrCreateVideoCache(videoId, videoUrl);
-
-        const response = await gemini.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: prompt,
-            config: {
-                cachedContent,
-                responseMimeType: "application/json",
-            },
+        const response = await generateContentWithVideo(videoId, videoUrl, prompt, {
+            responseMimeType: "application/json",
         });
 
         const responseText = response.text;

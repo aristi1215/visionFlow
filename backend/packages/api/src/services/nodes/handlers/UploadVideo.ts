@@ -9,11 +9,11 @@ class UploadVideoNode {
     static async execute(videoData: VideoUploadInput): Promise<VideoRow> {
 
         /*
-        The video should be uploaded to S3 and optimized through cloudinary directly in the frontend.
-        This method represent one of the functionalities of the workflow.
-            Is does:
-            1. Uploads the video metadata to the database.
-            2. Returns the video URL to the next node.
+        Videos are uploaded to Supabase Storage via the API. This node persists
+        metadata and returns the stored video reference to downstream nodes.
+
+        TODO: Cloudinary fetch delivery for on-demand optimization is not implemented
+        yet — see integrations/cloudinary.ts and utils/videoDelivery.ts.
         */
 
         const { duration, fps, width, height, size, format, videoUrl, userId } = videoData;

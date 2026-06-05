@@ -11,17 +11,13 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className={cn('w-9 px-0', className)}
+      className={cn('h-9 w-9 px-0 text-muted-foreground hover:text-foreground', className)}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
-      {theme === 'light' ? (
-        <MoonIcon />
-      ) : (
-        <SunIcon />
-      )}
+      {theme === 'light' ? <MoonIcon /> : <SunIcon />}
     </Button>
   )
 }

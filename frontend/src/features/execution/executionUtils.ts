@@ -54,6 +54,23 @@ export function resetNodeExecutionStatus(nodes: Node[]): Node[] {
   })
 }
 
+function extractReportFromNodeOutput(output: unknown): string | null {
+  if (!output || typeof output !== 'object') return null
+  const record = output as Record<string, unknown>
+  return typeof record.output_report === 'string' ? record.output_report : null
+}
+
+export function extractOutputReport(
+  summary: Pick<WorkflowExecutionSummary, 'outputReport' | 'nodeResults'>,
+): string | null {
+  if (summary.outputReport) return summary.outputReport
+
+  const saveResults = summary.nodeResults.find((r) => r.type === 'save_results_node')
+  if (!saveResults) return null
+
+  return extractReportFromNodeOutput(saveResults.output)
+}
+
 export function executionDetailToSummary(
   detail: WorkflowExecutionDetail,
 ): WorkflowExecutionSummary {
@@ -66,6 +83,10 @@ export function executionDetailToSummary(
       output: n.output_json,
     }))
 
+  const saveResults = nodeResults.find((r) => r.type === 'save_results_node')
+  const outputReport =
+    detail.output_report ?? extractReportFromNodeOutput(saveResults?.output) ?? null
+
   return {
     executionId: detail.id,
     workflowId: detail.workflow_id,
@@ -74,6 +95,7 @@ export function executionDetailToSummary(
     executionOrder: nodeResults.map((r) => r.nodeId),
     skippedDanglingNodes: [],
     nodeResults,
+    outputReport,
   }
 }
 

@@ -17,9 +17,10 @@ export const Route = createRootRouteWithContext<{
   component: RootComponent,
   notFoundComponent: () => {
     return (
-      <div>
-        <p>This is the notFoundComponent configured on root route</p>
-        <Link to="/">Start Over</Link>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background p-6 text-center">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Page not found</h1>
+        <p className="text-sm text-muted-foreground">The page you're looking for doesn't exist.</p>
+        <Link to="/" className="text-sm text-primary hover:underline">Back to home</Link>
       </div>
     )
   },

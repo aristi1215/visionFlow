@@ -24,7 +24,7 @@ function DashboardLayout() {
   if (!isLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     )
   }
@@ -62,7 +62,7 @@ function DashboardShell() {
     <div className="flex h-screen min-h-0 bg-background">
       <DashboardAside />
       <div className="flex min-h-0 flex-1 flex-col">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-6">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/50 bg-background/80 px-6 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             {!isOpen ? (
               <Button
@@ -71,18 +71,14 @@ function DashboardShell() {
                 onClick={() => setIsOpen(true)}
                 aria-label="Show sidebar"
                 title="Show sidebar"
+                className="h-8 w-8 px-0"
               >
                 <PanelLeft className="h-4 w-4" />
               </Button>
             ) : null}
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {header.subtitle}
-              </p>
-              <h1 className="font-display text-lg text-foreground">{header.title}</h1>
-            </div>
+            <h1 className="text-lg font-medium text-foreground">{header.title}</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
             <UserButton />
           </div>
@@ -91,7 +87,7 @@ function DashboardShell() {
           className={
             isFullBleed
               ? 'flex min-h-0 flex-1 flex-col overflow-hidden'
-              : 'flex-1 overflow-auto p-6'
+              : 'mx-auto w-full max-w-7xl flex-1 overflow-auto p-8'
           }
         >
           <Outlet />

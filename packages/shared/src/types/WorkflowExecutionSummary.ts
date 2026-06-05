@@ -15,4 +15,5 @@ export type WorkflowExecutionSummary = {
     executionOrder: number[];
     skippedDanglingNodes: number[];
     nodeResults: WorkflowExecutionNodeResult[];
+    outputReport?: string | null;
 };

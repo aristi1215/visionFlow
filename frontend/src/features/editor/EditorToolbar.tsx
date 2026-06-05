@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui'
+import { Badge, Button } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { Grid3x3, LayoutGrid, Maximize2 } from 'lucide-react'
 
@@ -26,7 +26,7 @@ export function EditorToolbar({
   return (
     <div
       className={cn(
-        'flex shrink-0 items-center justify-between gap-2 border-t border-border bg-card px-4 py-2',
+        'flex shrink-0 items-center justify-between gap-2 border-t border-border/50 bg-background/80 px-4 py-2 backdrop-blur-xl',
         className,
       )}
     >
@@ -56,9 +56,9 @@ export function EditorToolbar({
           </span>
         )}
         {isDirty && (
-          <span className="rounded-full bg-orange-100 px-2 py-0.5 font-medium text-orange-800 dark:bg-orange-950 dark:text-orange-200">
+          <Badge variant="default" className="text-[10px]">
             Unsaved
-          </span>
+          </Badge>
         )}
       </div>
     </div>

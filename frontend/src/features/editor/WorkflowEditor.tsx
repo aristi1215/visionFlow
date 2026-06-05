@@ -16,7 +16,16 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import './editor.css'
-import { ArrowLeft, Loader2, Menu, PanelRight, Play, Save, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  FileText,
+  Loader2,
+  Menu,
+  PanelRight,
+  Play,
+  Save,
+  X,
+} from 'lucide-react'
 import { Alert, Button, Input } from '@/components/ui'
 import { useToast } from '@/contexts/toastContext'
 import { useWorkflow } from '@/hooks/useWorkflows'
@@ -209,12 +218,14 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
     const summary = executionDetailToSummary(initialExecution)
     setLastExecution(summary)
     setResultsPanelOpen(true)
+    setConfigPanelOpen(false)
     setNodes((current) => applyExecutionSummaryToNodes(current, summary))
   }, [
     baseline,
     initialExecution,
     initialExecutionId,
     setLastExecution,
+    setConfigPanelOpen,
     setResultsPanelOpen,
     setNodes,
   ])
@@ -424,6 +435,7 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
         setLastExecution(summary)
         setExecutionPhase('success')
         setResultsPanelOpen(true)
+        setConfigPanelOpen(false)
         success('Workflow completed successfully.')
         await animateExecutionProgress(
           nodes,
@@ -448,6 +460,7 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
       setExecutionPhase,
       setLastExecution,
       setNodes,
+      setConfigPanelOpen,
       setResultsPanelOpen,
       showError,
       success,
@@ -493,7 +506,7 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-4 py-3">
+      <div className="flex shrink-0 items-center justify-between border-b border-border/50 bg-background/80 px-4 py-3 backdrop-blur-xl">
         <div className="flex min-w-0 items-center gap-3">
           <Link to="/dashboard/workflows">
             <Button variant="ghost" size="sm">
@@ -504,7 +517,7 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
             <Input
               value={nameDraft}
               onChange={(event) => setNameDraft(event.target.value)}
-              className="h-8 max-w-xs border-transparent bg-transparent font-display text-base focus-visible:border-input"
+              className="h-8 max-w-xs border-transparent bg-transparent text-base font-medium focus-visible:border-input focus-visible:bg-muted/30"
               aria-label="Workflow name"
             />
             {isDirty && (
@@ -533,6 +546,19 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
           >
             <PanelRight className="h-4 w-4" />
           </Button>
+          {lastExecution && !resultsPanelOpen && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setResultsPanelOpen(true)
+                setConfigPanelOpen(false)
+              }}
+            >
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">View report</span>
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -577,7 +603,7 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
               />
               <button
                 type="button"
-                className="m-2 self-start rounded-md bg-card p-1 shadow"
+                className="m-2 self-start rounded-md border border-border/50 bg-background/95 p-1 shadow-sm backdrop-blur-xl"
                 onClick={() => setPaletteOpen(false)}
                 aria-label="Close node library"
               >
@@ -616,7 +642,7 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
             <Background gap={GRID_SIZE} />
             <Controls showInteractive={false} />
             <MiniMap
-              nodeColor={() => 'var(--color-orange-400)'}
+              nodeColor={() => 'var(--primary)'}
               maskColor="rgba(0,0,0,0.08)"
               pannable
               zoomable
@@ -625,11 +651,28 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
         </div>
 
         {resultsPanelOpen && lastExecution && (
-          <ExecutionResultsPanel
-            summary={lastExecution}
-            onClose={() => setResultsPanelOpen(false)}
-            className="hidden h-full min-h-0 lg:flex"
-          />
+          <>
+            <ExecutionResultsPanel
+              summary={lastExecution}
+              onClose={() => setResultsPanelOpen(false)}
+              className="hidden h-full min-h-0 lg:flex"
+            />
+            <div className="absolute inset-y-0 right-0 z-20 flex lg:hidden">
+              <button
+                type="button"
+                className="m-2 self-start rounded-md border border-border/50 bg-background/95 p-1 shadow-sm backdrop-blur-xl"
+                onClick={() => setResultsPanelOpen(false)}
+                aria-label="Close results panel"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <ExecutionResultsPanel
+                summary={lastExecution}
+                onClose={() => setResultsPanelOpen(false)}
+                className="h-full max-h-full min-h-0 w-[min(28rem,100vw)] shadow-lg"
+              />
+            </div>
+          </>
         )}
 
         {configPanelOpen && !resultsPanelOpen && (
@@ -643,7 +686,7 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
             <div className="absolute inset-y-0 right-0 z-20 flex lg:hidden">
               <button
                 type="button"
-                className="m-2 self-start rounded-md bg-card p-1 shadow"
+                className="m-2 self-start rounded-md border border-border/50 bg-background/95 p-1 shadow-sm backdrop-blur-xl"
                 onClick={() => setConfigPanelOpen(false)}
                 aria-label="Close configuration panel"
               >
@@ -684,8 +727,8 @@ export function WorkflowEditor({ workflowId, initialExecutionId }: WorkflowEdito
       />
 
       {executionPhase === 'running' && (
-        <div className="pointer-events-none fixed inset-0 z-40 flex items-end justify-center bg-black/20 p-6">
-          <div className="pointer-events-auto flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-lg">
+        <div className="pointer-events-none fixed inset-0 z-40 flex items-end justify-center bg-black/20 p-6 backdrop-blur-sm">
+          <div className="pointer-events-auto flex items-center gap-3 rounded-xl border border-border/50 bg-card/95 px-4 py-3 shadow-xl backdrop-blur-xl animate-in">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
             <div>
               <p className="text-sm font-medium text-foreground">Running workflow</p>

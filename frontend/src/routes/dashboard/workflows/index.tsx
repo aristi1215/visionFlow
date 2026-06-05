@@ -7,7 +7,7 @@ export const Route = createFileRoute('/dashboard/workflows/')({
 })
 
 function WorkflowsPage() {
-  useSetDashboardHeader({ title: 'Workflows', subtitle: 'Pipeline builder' })
+  useSetDashboardHeader({ title: 'Workflows', subtitle: '' })
 
   return <WorkflowList />
 }
