@@ -11,4 +11,5 @@ export interface WorkflowRequest extends Request {
 
 export interface WorkflowUpdateRequest extends Request {
     body: WorkflowUpdate;
+    params: { workflowId: string };
 }

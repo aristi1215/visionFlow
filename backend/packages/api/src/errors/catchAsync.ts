@@ -9,7 +9,7 @@ type AsyncRequestHandler<TReq extends Request = Request> = (
 
 const catchAsync = <TReq extends Request = Request>(
     fn: AsyncRequestHandler<TReq>): RequestHandler => {
-  return (req, res, next) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     void fn(req as TReq, res, next).catch(next);
   };
 }; 

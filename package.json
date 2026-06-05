@@ -21,9 +21,5 @@
   "engines": {
     "node": ">=20"
   },
-  "license": "ISC",
-  "dependencies": {
-    "@tanstack/react-query-devtools": "^5.100.14",
-    "@tanstack/react-router-devtools": "^1.167.0"
-  }
+  "license": "ISC"
 }

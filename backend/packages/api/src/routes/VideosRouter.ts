@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type NextFunction, type Request, type Response } from "express";
 import catchAsync from "../errors/catchAsync.js";
 import VideoController from "../controllers/VideoController.js";
 import { uploadVideoMiddleware } from "../middleware/uploadVideo.js";
@@ -7,8 +7,8 @@ const router = Router();
 
 router.post(
     "/upload",
-    (req, res, next) => {
-        uploadVideoMiddleware(req, res, (error) => {
+    (req: Request, res: Response, next: NextFunction) => {
+        uploadVideoMiddleware(req, res, (error: unknown) => {
             if (error) next(error);
             else next();
         });
