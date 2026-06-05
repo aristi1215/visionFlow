@@ -106,7 +106,7 @@ export async function apiUpload<T>(
       }
 
       try {
-        const body = JSON.parse(xhr.responseText) as ApiSuccess<T>
+        const body = JSON.parse(xhr.responseText) as ApiSuccess<T> | ApiError
         if (body.status === 'error') {
           reject(new ApiRequestError(body.message ?? 'Upload failed', xhr.status))
           return

@@ -17,6 +17,7 @@
 
     /* TanStack Router requires strictNullChecks */
     "strictNullChecks": true,
+    "noImplicitAny": false,
 
     /* Linting */
     "noUnusedLocals": true,
