@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import type { NodeRequest } from "@ondeckai/shared/types/Nodes";
+import type { NodeRequest, NodeUpdateRequest } from "../../types/NodeRequests.js";
 import WorkflowNode from "../../services/WorkflowNode.js";
 
 
@@ -18,7 +18,7 @@ class NodeController {
         return res.status(200).json({status: 'success', data: node});
     };
 
-    static async updateNode(req: NodeRequest, res: Response){
+    static async updateNode(req: NodeUpdateRequest, res: Response){
         const {id} = req.params;
         const formattedId = Array.isArray(id) ? id[0] : id;
         const {position_x, position_y, config} = req.body;

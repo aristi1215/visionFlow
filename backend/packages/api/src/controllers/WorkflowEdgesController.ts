@@ -1,10 +1,10 @@
 import WorkflowEdges from "../services/WorkflowEdges.js";
-import type { workflowEdgeRequest, workflowEdgeUpdateRequest } from "@ondeckai/shared/types/WorkFlowEdges";
+import type { WorkflowEdgeRequest, WorkflowEdgeUpdateRequest } from "../types/WorkflowEdgeRequests.js";
 import { Request, Response } from "express";
 
 class WorkflowEdgesController {
 
-    static async createWorkflowEdge(req: workflowEdgeRequest, res: Response){
+    static async createWorkflowEdge(req: WorkflowEdgeRequest, res: Response){
         const {source_node, target_node} = req.body;
         const {workflowId} = req.params;
         const formattedWorkflowId = Array.isArray(workflowId) ? workflowId[0] : workflowId;
@@ -12,7 +12,7 @@ class WorkflowEdgesController {
         return res.status(201).json({status: 'success', data: edge});
     };
 
-    static async updateWorkflowEdge(req: workflowEdgeUpdateRequest, res: Response){
+    static async updateWorkflowEdge(req: WorkflowEdgeUpdateRequest, res: Response){
         const {target_node} = req.body;
         const {id} = req.params;
         const formattedId = Array.isArray(id) ? id[0] : id;
