@@ -11,4 +11,5 @@ export interface WorkflowEdgeRequest extends Request {
 
 export interface WorkflowEdgeUpdateRequest extends Request {
     body: WorkflowEdgeUpdate;
+    params: { id: string };
 }
