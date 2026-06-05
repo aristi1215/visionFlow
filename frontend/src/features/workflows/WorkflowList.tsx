@@ -35,6 +35,7 @@ export function WorkflowList() {
       navigate({
         to: '/dashboard/workflows/$workflowId',
         params: { workflowId: String(workflow.id) },
+        search: {},
       })
     } catch (err) {
       toast.error(getFriendlyErrorMessage(err, 'Could not create the workflow.'))

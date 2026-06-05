@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -20,7 +20,7 @@ export type Database = {
           completed_at: string
           execution_node: number | null
           id: number
-          payload_json: Json
+          message: string
           sent_status: Database["public"]["Enums"]["execution_alert_status"]
           started_at: string
         }
@@ -29,7 +29,7 @@ export type Database = {
           completed_at: string
           execution_node?: number | null
           id?: number
-          payload_json: Json
+          message: string
           sent_status: Database["public"]["Enums"]["execution_alert_status"]
           started_at: string
         }
@@ -38,7 +38,7 @@ export type Database = {
           completed_at?: string
           execution_node?: number | null
           id?: number
-          payload_json?: Json
+          message?: string
           sent_status?: Database["public"]["Enums"]["execution_alert_status"]
           started_at?: string
         }
@@ -55,28 +55,22 @@ export type Database = {
       detections: {
         Row: {
           completed_at: string
-          confidence: number
           execution_node: number | null
           id: number
-          object_type: string
           output_json: Json
           started_at: string
         }
         Insert: {
           completed_at: string
-          confidence: number
           execution_node?: number | null
           id?: number
-          object_type: string
           output_json: Json
           started_at: string
         }
         Update: {
           completed_at?: string
-          confidence?: number
           execution_node?: number | null
           id?: number
-          object_type?: string
           output_json?: Json
           started_at?: string
         }
@@ -132,29 +126,23 @@ export type Database = {
       timeline_events: {
         Row: {
           completed_at: string
-          confidence: number
-          description: string
-          event_type: string
           execution_node: number
           id: number
+          output_json: Json
           started_at: string
         }
         Insert: {
           completed_at: string
-          confidence: number
-          description: string
-          event_type: string
           execution_node: number
           id?: number
+          output_json: Json
           started_at: string
         }
         Update: {
           completed_at?: string
-          confidence?: number
-          description?: string
-          event_type?: string
           execution_node?: number
           id?: number
+          output_json?: Json
           started_at?: string
         }
         Relationships: [
@@ -188,30 +176,71 @@ export type Database = {
         }
         Relationships: []
       }
+      video_analysis: {
+        Row: {
+          Analysis: string
+          completed_at: string
+          execution_node: number
+          id: number
+          started_at: string
+        }
+        Insert: {
+          Analysis: string
+          completed_at: string
+          execution_node: number
+          id?: number
+          started_at: string
+        }
+        Update: {
+          Analysis?: string
+          completed_at?: string
+          execution_node?: number
+          id?: number
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_analysis_execution_node_fkey"
+            columns: ["execution_node"]
+            isOneToOne: false
+            referencedRelation: "execution_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       videos: {
         Row: {
           duration: number
+          format: string
           fps: number
+          height: number | null
           id: number
-          metadata_json: Json
-          s3_url: string
-          user_id: string | null
+          size: number | null
+          user_id: string
+          video_url: string
+          width: number | null
         }
         Insert: {
           duration: number
+          format: string
           fps: number
+          height?: number | null
           id?: number
-          metadata_json: Json
-          s3_url: string
-          user_id?: string | null
+          size?: number | null
+          user_id: string
+          video_url: string
+          width?: number | null
         }
         Update: {
           duration?: number
+          format?: string
           fps?: number
+          height?: number | null
           id?: number
-          metadata_json?: Json
-          s3_url?: string
-          user_id?: string | null
+          size?: number | null
+          user_id?: string
+          video_url?: string
+          width?: number | null
         }
         Relationships: [
           {
@@ -227,28 +256,42 @@ export type Database = {
         Row: {
           id: number
           source_node: number
-          target_node: number | null
+          target_node: number
           workflow_id: number
         }
         Insert: {
           id?: number
           source_node: number
-          target_node?: number | null
+          target_node: number
           workflow_id: number
         }
         Update: {
           id?: number
           source_node?: number
-          target_node?: number | null
+          target_node?: number
           workflow_id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "workflow_edges_source_in_workflow_fkey"
+            columns: ["workflow_id", "source_node"]
+            isOneToOne: false
+            referencedRelation: "workflow_nodes"
+            referencedColumns: ["workflow_id", "id"]
+          },
           {
             foreignKeyName: "workflow_edges_source_node_fkey"
             columns: ["source_node"]
             isOneToOne: false
             referencedRelation: "workflow_nodes"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_edges_target_in_workflow_fkey"
+            columns: ["workflow_id", "target_node"]
+            isOneToOne: true
+            referencedRelation: "workflow_nodes"
+            referencedColumns: ["workflow_id", "id"]
           },
           {
             foreignKeyName: "workflow_edges_target_node_fkey"
@@ -268,24 +311,27 @@ export type Database = {
       }
       workflow_execution: {
         Row: {
-          completed_at: string
+          completed_at: string | null
           id: number
+          output_report: string | null
           started_at: string
           status: Database["public"]["Enums"]["execution_alert_status"]
           video_id: number
           workflow_id: number
         }
         Insert: {
-          completed_at: string
+          completed_at?: string | null
           id?: number
+          output_report?: string | null
           started_at: string
           status: Database["public"]["Enums"]["execution_alert_status"]
           video_id: number
           workflow_id: number
         }
         Update: {
-          completed_at?: string
+          completed_at?: string | null
           id?: number
+          output_report?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["execution_alert_status"]
           video_id?: number
@@ -310,6 +356,7 @@ export type Database = {
       }
       workflow_nodes: {
         Row: {
+          config: Json
           id: number
           position_x: number
           position_y: number
@@ -317,6 +364,7 @@ export type Database = {
           workflow_id: number
         }
         Insert: {
+          config?: Json
           id?: number
           position_x: number
           position_y: number
@@ -324,6 +372,7 @@ export type Database = {
           workflow_id: number
         }
         Update: {
+          config?: Json
           id?: number
           position_x?: number
           position_y?: number

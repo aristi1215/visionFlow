@@ -1,4 +1,4 @@
-import type { NodeCreate, NodeRow } from '@ondeckai/shared/types/Nodes'
+import type { NodeCreate, NodeRow, NodeUpdate } from '@ondeckai/shared/types/Nodes'
 import { ApiRequestError, apiFetch, unwrapRow, unwrapRows } from './client'
 
 export async function fetchNodes(workflowId: number): Promise<NodeRow[]> {
@@ -23,16 +23,23 @@ export async function createNode(input: NodeCreate): Promise<NodeRow> {
   return unwrapRow(data)
 }
 
+export async function updateNode(
+  id: number,
+  patch: Pick<NodeUpdate, 'position_x' | 'position_y' | 'config'>,
+): Promise<NodeRow> {
+  const data = await apiFetch<NodeRow | NodeRow[]>(`/nodes/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  })
+  return unwrapRow(data)
+}
+
 export async function updateNodePosition(
   id: number,
   position_x: number,
   position_y: number,
 ): Promise<NodeRow> {
-  const data = await apiFetch<NodeRow | NodeRow[]>(`/nodes/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ position_x, position_y }),
-  })
-  return unwrapRow(data)
+  return updateNode(id, { position_x, position_y })
 }
 
 export async function deleteNode(id: number): Promise<void> {

@@ -1,11 +1,14 @@
 import type { Edge, Node } from '@xyflow/react'
+import type { Json } from '@ondeckai/shared/database.types'
 import type { NodeRow } from '@ondeckai/shared/types/Nodes'
 import type { WorkflowEdgeRow } from '@ondeckai/shared/types/WorkFlowEdges'
 import {
   createNode,
   deleteNode,
-  updateNodePosition,
+  updateNode,
 } from '@/lib/api/nodes'
+import { configsEqual } from '@/features/workflows/configKeys'
+import type { WorkflowNodeData } from './WorkflowNode'
 import { createEdge, deleteEdge } from '@/lib/api/edges'
 import { updateWorkflow } from '@/lib/api/workflows'
 import {
@@ -62,12 +65,13 @@ export async function persistWorkflowDraft(
 
   for (const node of nodes) {
     if (!isTempNodeId(node.id)) continue
-    const nodeType = (node.data as { nodeType: NodeRow['type'] }).nodeType
+    const nodeData = node.data as WorkflowNodeData
     const created = await createNode({
       workflow_id: workflowId,
-      type: nodeType,
+      type: nodeData.nodeType,
       position_x: node.position.x,
       position_y: node.position.y,
+      config: (nodeData.config ?? {}) as Json,
     })
     idMap.set(node.id, String(created.id))
     createdNodes.push(created)
@@ -77,13 +81,25 @@ export async function persistWorkflowDraft(
     if (!isServerNodeId(node.id)) continue
     const baselineNode = baseline.nodes.find((item) => String(item.id) === node.id)
     if (!baselineNode) continue
-    if (
-      baselineNode.position_x === node.position.x &&
-      baselineNode.position_y === node.position.y
-    ) {
-      continue
-    }
-    await updateNodePosition(Number(node.id), node.position.x, node.position.y)
+    const nodeData = node.data as WorkflowNodeData
+    const positionChanged =
+      baselineNode.position_x !== node.position.x ||
+      baselineNode.position_y !== node.position.y
+    const baselineConfig =
+      baselineNode.config && typeof baselineNode.config === 'object' && !Array.isArray(baselineNode.config)
+        ? (baselineNode.config as Record<string, unknown>)
+        : {}
+    const configChanged = !configsEqual(baselineConfig, nodeData.config ?? {})
+
+    if (!positionChanged && !configChanged) continue
+
+    await updateNode(Number(node.id), {
+      ...(positionChanged && {
+        position_x: node.position.x,
+        position_y: node.position.y,
+      }),
+      ...(configChanged && { config: (nodeData.config ?? {}) as Json }),
+    })
   }
 
   const createdEdges: WorkflowEdgeRow[] = []
@@ -105,10 +121,12 @@ export async function persistWorkflowDraft(
       .map((node) => {
         const current = nodes.find((item) => item.id === String(node.id))
         if (!current) return node
+        const currentData = current.data as WorkflowNodeData
         return {
           ...node,
           position_x: current.position.x,
           position_y: current.position.y,
+          config: (currentData.config ?? {}) as Json,
         }
       }),
     ...createdNodes,

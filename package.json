@@ -14,6 +14,7 @@
     "dev:api": "npm run dev -w @ondeckai/api",
     "build": "npm run build -w @ondeckai/shared && npm run build -w @ondeckai/api && npm run build -w frontend",
     "build:shared": "npm run build -w @ondeckai/shared",
+    "gen:types": "npm run gen:types -w @ondeckai/shared && npm run build:shared",
     "build:api": "npm run build -w @ondeckai/api",
     "build:frontend": "npm run build -w frontend"
   },

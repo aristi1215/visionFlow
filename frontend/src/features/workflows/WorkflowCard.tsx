@@ -43,6 +43,7 @@ export function WorkflowCard({ workflow, onRename, onDelete }: WorkflowCardProps
         <Link
           to="/dashboard/workflows/$workflowId"
           params={{ workflowId: String(workflow.id) }}
+          search={{}}
           className="flex-1"
         >
           <Button className="w-full" size="sm">
